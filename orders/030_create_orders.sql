@@ -55,5 +55,17 @@ CREATE TABLE IF NOT EXISTS public.orders (
     check (
       status != 'shipping'
       or cancelled_at is null
+    ),
+
+  -- ✅ THÊM DÒNG NÀY (BẮT BUỘC)
+  constraint orders_refund_requires_paid
+    check (
+      NOT (payment_status = 'refunded' AND paid_at IS NULL)
+    ),
+
+  -- 🟡 THÊM DÒNG NÀY (KHUYẾN NGHỊ)
+  constraint orders_total_check
+    check (
+      total = subtotal + shipping_fee - discount + tax
     )
 );
