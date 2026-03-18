@@ -1,0 +1,34 @@
+ALTER TABLE public.addresses
+ENABLE ROW LEVEL SECURITY;
+
+-- SELECT
+CREATE POLICY "addresses_select_own"
+ON public.addresses
+FOR SELECT
+USING (
+  user_id = auth.uid()::text
+);
+
+-- INSERT
+CREATE POLICY "addresses_insert_own"
+ON public.addresses
+FOR INSERT
+WITH CHECK (
+  user_id = auth.uid()::text
+);
+
+-- UPDATE
+CREATE POLICY "addresses_update_own"
+ON public.addresses
+FOR UPDATE
+USING (
+  user_id = auth.uid()::text
+);
+
+-- DELETE (cho phép user xoá địa chỉ của mình)
+CREATE POLICY "addresses_delete_own"
+ON public.addresses
+FOR DELETE
+USING (
+  user_id = auth.uid()::text
+);
