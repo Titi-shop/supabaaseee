@@ -64,3 +64,6 @@ CREATE TABLE IF NOT EXISTS public.products (
     or sale_start <= sale_end
   )
 );
+
+ALTER TABLE products
+ADD COLUMN is_active boolean DEFAULT true;
