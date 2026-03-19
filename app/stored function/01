@@ -1,0 +1,32 @@
+create or replace function public.validate_order_item_status()
+returns trigger
+language plpgsql
+as $$
+begin
+  if old.status = 'pending'
+     and new.status not in ('confirmed','cancelled') then
+    raise exception 'INVALID_STATUS_TRANSITION';
+  end if;
+
+  if old.status = 'confirmed'
+     and new.status not in ('shipping','cancelled') then
+    raise exception 'INVALID_STATUS_TRANSITION';
+  end if;
+
+  if old.status = 'shipping'
+     and new.status <> 'completed' then
+    raise exception 'INVALID_STATUS_TRANSITION';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_validate_order_item_status
+on public.order_items;
+
+create trigger trg_validate_order_item_status
+before update of status
+on public.order_items
+for each row
+execute function public.validate_order_item_status();
