@@ -1,0 +1,67 @@
+drop function if exists public.sync_order_status(uuid);
+create or replace function public.sync_order_status(p_order uuid)
+returns void
+language plpgsql
+as $$
+declare
+  v_total int;
+  v_completed int;
+  v_shipping int;
+  v_pending int;
+  v_cancelled int;
+begin
+
+select
+count(*),
+count(*) filter (where status='completed'),
+count(*) filter (where status='shipping'),
+count(*) filter (where status='pending'),
+count(*) filter (where status='cancelled')
+into
+v_total,
+v_completed,
+v_shipping,
+v_pending,
+v_cancelled
+from order_items
+where order_id = p_order;
+
+if v_completed = v_total then
+  update orders set status='completed' where id=p_order;
+
+elsif v_shipping > 0 then
+  update orders set status='shipping' where id=p_order;
+
+elsif v_pending = v_total then
+  update orders set status='pending' where id=p_order;
+
+elsif v_cancelled = v_total then
+  update orders set status='cancelled' where id=p_order;
+
+else
+  update orders set status='pickup' where id=p_order;
+
+end if;
+
+end;
+$$;
+
+
+create or replace function public.trg_sync_order_status()
+returns trigger
+language plpgsql
+as $$
+begin
+  perform public.sync_order_status(new.order_id);
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_sync_order_status
+on public.order_items;
+
+create trigger trg_sync_order_status
+after update of status
+on public.order_items
+for each row
+execute function public.trg_sync_order_status();
