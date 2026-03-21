@@ -1,0 +1,13 @@
+-- Bảng products đã có, giờ thêm bảng variants
+create table if not exists public.variants (
+  id uuid primary key default gen_random_uuid(), -- id biến thể
+  product_id uuid not null references public.products(id) on delete cascade, -- liên kết với sản phẩm
+  sku text not null,           -- mã riêng cho biến thể
+  price numeric not null,      -- giá biến thể, có thể khác base_price
+  stock int default 0,         -- tồn kho từng biến thể
+  option1 text,                -- ví dụ: size, dung tích
+  option2 text,                -- ví dụ: màu, mùi hương
+  option3 text,                -- nếu muốn thêm tuỳ chọn nữa
+  created_at timestamp with time zone default timezone('utc', now()),
+  updated_at timestamp with time zone default timezone('utc', now())
+);
