@@ -1,7 +1,7 @@
 create table if not exists public.cart_items (
   id uuid primary key default gen_random_uuid(),
 
-  user_id text not null
+  buyer_id text not null
     references public.users(pi_uid)
     on delete cascade,
 
