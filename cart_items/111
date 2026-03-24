@@ -1,5 +1,5 @@
-create index if not exists idx_cart_user
-on public.cart_items(user_id);
+create index if not exists idx_cart_buyer
+on public.cart_items(buyer_id);
 
 create unique index if not exists idx_cart_unique
-on public.cart_items(user_id, product_id, variant_id);
+on public.cart_items(buyer_id, product_id, variant_id);
