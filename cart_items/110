@@ -1,0 +1,15 @@
+create table if not exists public.cart_items (
+  id uuid primary key default gen_random_uuid(),
+
+  user_id text not null
+    references public.users(pi_uid)
+    on delete cascade,
+
+  product_id text not null,
+  variant_id text,
+
+  quantity integer not null default 1,
+
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
