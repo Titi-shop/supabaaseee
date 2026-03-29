@@ -1,0 +1,5 @@
+create index cart_items_buyer_idx
+on cart_items (buyer_id);
+
+create index cart_items_product_idx
+on cart_items (product_id);
