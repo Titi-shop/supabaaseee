@@ -13,3 +13,9 @@ create table if not exists public.cart_items (
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
 );
+create unique index cart_items_unique_idx
+on cart_items (
+  buyer_id,
+  product_id,
+  coalesce(variant_id, '00000000-0000-0000-0000-000000000000')
+);
