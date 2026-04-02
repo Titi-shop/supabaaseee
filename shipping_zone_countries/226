@@ -1,0 +1,13 @@
+-- VN → domestic
+insert into public.shipping_zone_countries (zone_id, country_code)
+select id, 'VN'
+from public.shipping_zones
+where code = 'domestic'
+on conflict do nothing;
+
+-- SEA
+insert into public.shipping_zone_countries (zone_id, country_code)
+select id, unnest(array['TH','SG','MY','ID','PH'])
+from public.shipping_zones
+where code = 'sea'
+on conflict do nothing;
