@@ -1,0 +1,5 @@
+select z.id
+from public.shipping_zone_countries c
+join public.shipping_zones z on z.id = c.zone_id
+where c.country_code = $1
+limit 1;
