@@ -1,0 +1,8 @@
+create index if not exists idx_zone_country_code
+on public.shipping_zone_countries (country_code);
+
+create index if not exists idx_shipping_rates_zone
+on public.shipping_rates (zone_id);
+
+create index if not exists idx_shipping_rates_seller
+on public.shipping_rates (seller_id);
