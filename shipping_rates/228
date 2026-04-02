@@ -1,0 +1,23 @@
+insert into public.shipping_rates (zone_id, price, currency)
+select id, 20000, 'VND' from public.shipping_zones where code = 'domestic'
+on conflict do nothing;
+
+insert into public.shipping_rates (zone_id, price, currency)
+select id, 50000, 'VND' from public.shipping_zones where code = 'sea'
+on conflict do nothing;
+
+insert into public.shipping_rates (zone_id, price, currency)
+select id, 70000, 'VND' from public.shipping_zones where code = 'asia'
+on conflict do nothing;
+
+insert into public.shipping_rates (zone_id, price, currency)
+select id, 120000, 'VND' from public.shipping_zones where code = 'europe'
+on conflict do nothing;
+
+insert into public.shipping_rates (zone_id, price, currency)
+select id, 150000, 'VND' from public.shipping_zones where code = 'north_america'
+on conflict do nothing;
+
+insert into public.shipping_rates (zone_id, price, currency)
+select id, 180000, 'VND' from public.shipping_zones where code = 'rest_of_world'
+on conflict do nothing;
