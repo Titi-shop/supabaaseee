@@ -1,19 +1,21 @@
-create table if not exists public.shipping_rates (
-  id uuid primary key default gen_random_uuid(),
+CREATE TABLE IF NOT EXISTS public.product_shipping_rates (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  zone_id uuid not null
-    references public.shipping_zones(id)
-    on delete cascade,
+  product_id uuid NOT NULL
+    REFERENCES public.products(id)
+    ON DELETE CASCADE,
 
-  seller_id uuid null
-    references public.users(id)
-    on delete cascade,
+  zone_id uuid NOT NULL
+    REFERENCES public.shipping_zones(id)
+    ON DELETE CASCADE,
 
-  price numeric(12,2) not null check (price >= 0),
+  price numeric(12,2) NOT NULL CHECK (price >= 0),
 
-  currency text not null default 'USD',
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
 
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (zone_id, seller_id)
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+
+  UNIQUE (product_id, zone_id)
 );
