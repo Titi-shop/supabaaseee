@@ -1,0 +1,3 @@
+Các cột bảng db : seller_id  uuid , sold  integer , rating_avg  numeric , 
+
+rating_count  integer , is_featured boolean , is_digital  boolean , sale_start  timestamp with time zone , sale_end  timestamp with time zone , deleted_at timestamp with time zone , created_at timestamp with time zone , updated_at timestamp with time zone , is_active boolean , final_price  numeric , id uuid , price numeric , sale_price numeric , stock integer , is_unlimited boolean , category_id integer , views integer , name text , slug text , short_description text , description text , detail text , thumbnail text , images ARRAY , detail_images ARRAY , video_url text , status text , meta_title text , currency text , meta_description text.
