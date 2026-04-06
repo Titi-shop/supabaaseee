@@ -1,69 +1,51 @@
-CREATE TABLE IF NOT EXISTS public.products (
-  id uuid primary key default gen_random_uuid(),
+CREATE TABLE products (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  name text not null,
-  slug text unique not null,
+  seller_id uuid NOT NULL,
 
-  short_description text default '',
-  description text default '',
-  detail text default '',
+  name text NOT NULL DEFAULT '',
+  slug text NOT NULL DEFAULT '',
 
-  thumbnail text,
-  images text[] not null default '{}',
-  detail_images text[] not null default '{}',
-  video_url text,
+  short_description text NOT NULL DEFAULT '',
+  description text NOT NULL DEFAULT '',
+  detail text NOT NULL DEFAULT '',
 
-  price numeric(20,8) not null check (price > 0),
+  thumbnail text NOT NULL DEFAULT '',
+  images text[] NOT NULL DEFAULT '{}',
+  detail_images text[] NOT NULL DEFAULT '{}',
 
-  sale_price numeric(20,8)
-  check (
-    sale_price is null
-    or (sale_price > 0 and sale_price <= price)
-  ),
+  video_url text NOT NULL DEFAULT '',
 
-  currency text not null default 'PI',
+  price numeric NOT NULL DEFAULT 0,
+  sale_price numeric,
+  final_price numeric NOT NULL DEFAULT 0,
 
-  stock integer not null default 0 check (stock >= 0),
-  is_unlimited boolean not null default false,
+  currency text NOT NULL DEFAULT 'PI',
+
+  stock integer NOT NULL DEFAULT 0,
+  is_unlimited boolean NOT NULL DEFAULT false,
+
+  sold integer NOT NULL DEFAULT 0,
+  views integer NOT NULL DEFAULT 0,
+
+  rating_avg numeric NOT NULL DEFAULT 0,
+  rating_count integer NOT NULL DEFAULT 0,
+
+  is_active boolean NOT NULL DEFAULT true,
+  is_featured boolean NOT NULL DEFAULT false,
+  is_digital boolean NOT NULL DEFAULT false,
+
+  status text NOT NULL DEFAULT 'active',
 
   category_id integer,
-
-  seller_id text not null
-  references public.users(pi_uid)
-  on delete cascade,
-
-  views integer not null default 0,
-  sold integer not null default 0,
-
-  rating_avg numeric(3,2) not null default 0,
-  rating_count integer not null default 0,
-
-  status text not null default 'draft'
-  check (
-    status in ('draft','active','inactive','archived','banned')
-  ),
-
-  is_featured boolean not null default false,
-  is_digital boolean not null default false,
 
   sale_start timestamptz,
   sale_end timestamptz,
 
-  meta_title text,
-  meta_description text,
+  meta_title text NOT NULL DEFAULT '',
+  meta_description text NOT NULL DEFAULT '',
 
-  deleted_at timestamptz,
-
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-
-  constraint sale_time_check
-  check (
-    sale_start is null
-    or sale_end is null
-    or sale_start <= sale_end
-  )
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
-
-ALTER TABLE products
-ADD COLUMN is_active boolean DEFAULT true;
