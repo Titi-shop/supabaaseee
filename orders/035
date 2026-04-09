@@ -1,0 +1,3 @@
+
+
+id uuid, order_number text, pi_payment_id text , pi_txid text ,payment_status text , paid_at timestamp with time zone , refunded_at timestamp with time zone , subtotal numeric , shipping_fee numeric , discount numeric , tax numeric , total numeric , currency text , status text , cancel_reason text, cancelled_at timestamp dwith time zone, shipping_name text ,shipping_phone text , shipping_address text , shipping_provider text, shipping_country text ,shipping_postal_code text ,buyer_note text , admin_note text ,created_at timestamp with time zone ,updated_at timestamp with time zone ,shipping_province text ,buyer_id uuid ,items_total numeric ,shipping_zone text .
