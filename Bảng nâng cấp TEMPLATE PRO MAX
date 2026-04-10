@@ -1,0 +1,17 @@
+audit + upgrade schema <tên_bảng>
+
+context:
+- app đang production
+- dùng SWR
+- mobile + web
+- auth: Pi Network
+
+mục tiêu:
+- scale lớn
+- chống bug
+- tối ưu query
+
+yêu cầu:
+- không downtime
+- không phá API
+- migration từng bước
