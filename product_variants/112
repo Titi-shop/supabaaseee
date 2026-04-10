@@ -1,0 +1,3 @@
+CREATE INDEX idx_variants_product_id ON product_variants(product_id);
+CREATE INDEX idx_variants_active ON product_variants(is_active);
+CREATE INDEX idx_variants_sku ON product_variants(sku);
