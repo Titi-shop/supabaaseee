@@ -1,6 +1,3 @@
-DROP TRIGGER IF EXISTS trg_reviews_updated ON public.reviews;
-
-CREATE TRIGGER trg_reviews_updated
-BEFORE UPDATE ON public.reviews
-FOR EACH ROW
-EXECUTE FUNCTION public.update_updated_at();
+CREATE UNIQUE INDEX unique_review_per_item
+ON reviews(order_item_id)
+WHERE deleted_at IS NULL;
