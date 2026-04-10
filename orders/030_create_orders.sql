@@ -1,9 +1,9 @@
 CREATE TABLE orders (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  /* ================= BASIC ================= */
+  /* ================= IDENTITY ================= */
 
-  order_number text NOT NULL UNIQUE,
+  order_number text NOT NULL DEFAULT '',
 
   buyer_id uuid NOT NULL,
   seller_id uuid NOT NULL,
@@ -15,17 +15,24 @@ CREATE TABLE orders (
   idempotency_key text UNIQUE,
 
   payment_status text NOT NULL DEFAULT 'pending'
-    CHECK (payment_status IN ('pending', 'paid', 'refunded')),
+    CHECK (payment_status IN (
+      'pending',
+      'paid',
+      'failed',
+      'refunded'
+    )),
 
   paid_at timestamptz,
   refunded_at timestamptz,
 
   /* ================= PRICE ================= */
 
-  subtotal numeric NOT NULL DEFAULT 0,
-  shipping_fee numeric NOT NULL DEFAULT 0,
+  items_total numeric NOT NULL DEFAULT 0,     -- sum order_items
+  subtotal numeric NOT NULL DEFAULT 0,        -- before discount
   discount numeric NOT NULL DEFAULT 0,
+  shipping_fee numeric NOT NULL DEFAULT 0,
   tax numeric NOT NULL DEFAULT 0,
+
   total numeric NOT NULL DEFAULT 0,
 
   currency text NOT NULL DEFAULT 'PI'
@@ -39,7 +46,8 @@ CREATE TABLE orders (
       'confirmed',
       'shipping',
       'completed',
-      'cancelled'
+      'cancelled',
+      'refunded'
     )),
 
   cancel_reason text,
@@ -53,27 +61,32 @@ CREATE TABLE orders (
   shipping_address_line text NOT NULL DEFAULT '',
   shipping_ward text,
   shipping_district text,
-  shipping_region text,
+  shipping_region text,        -- province / city
   shipping_country text NOT NULL DEFAULT '',
   shipping_postal_code text,
 
   shipping_provider text,
+  shipping_zone text,
 
-  shipping_zone text
-    CHECK (shipping_zone IN (
-      'local',
-      'domestic',
-      'international'
-    )),
+  shipped_at timestamptz,
+  delivered_at timestamptz,
 
   /* ================= NOTE ================= */
 
   buyer_note text NOT NULL DEFAULT '',
   admin_note text NOT NULL DEFAULT '',
 
+  /* ================= ANALYTICS ================= */
+
+  total_items integer NOT NULL DEFAULT 0,
+  total_quantity integer NOT NULL DEFAULT 0,
+
+  /* ================= SOFT DELETE ================= */
+
+  deleted_at timestamptz,
+
   /* ================= TIME ================= */
 
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  deleted_at timestamptz
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
