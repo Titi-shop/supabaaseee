@@ -1,19 +1,45 @@
-create table cart_items (
-  id uuid primary key default gen_random_uuid(),
+CREATE TABLE cart_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  buyer_id uuid not null
-    references users(id)
-    on delete cascade,
+  /* ================= OWNER ================= */
 
-  product_id uuid not null
-    references products(id)
-    on delete cascade,
+  user_id uuid NOT NULL,
 
-  variant_id uuid null,
+  /* ================= PRODUCT SNAPSHOT ================= */
 
-  quantity int not null default 1
-    check (quantity > 0),
+  product_id uuid NOT NULL,
+  variant_id uuid,
 
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  product_name text NOT NULL DEFAULT '',
+  product_slug text NOT NULL DEFAULT '',
+
+  thumbnail text NOT NULL DEFAULT '',
+  images text[] NOT NULL DEFAULT '{}',
+
+  /* ================= PRICE ================= */
+
+  unit_price numeric NOT NULL DEFAULT 0,
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* ================= QUANTITY ================= */
+
+  quantity integer NOT NULL DEFAULT 1
+    CHECK (quantity > 0),
+
+  /* ================= FLAGS ================= */
+
+  is_selected boolean NOT NULL DEFAULT true,
+
+  is_available boolean NOT NULL DEFAULT true,
+
+  /* ================= VALIDATION ================= */
+
+  stock_snapshot integer,
+  is_unlimited boolean NOT NULL DEFAULT false,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
