@@ -12,3 +12,7 @@ ON public.orders (created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_orders_order_number
 ON public.orders (order_number);
+CREATE INDEX idx_orders_buyer_id ON orders(buyer_id);
+CREATE INDEX idx_orders_seller_id ON orders(seller_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
