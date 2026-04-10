@@ -1,0 +1,61 @@
+CREATE TABLE product_variants (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* ================= RELATION ================= */
+
+  product_id uuid NOT NULL
+    REFERENCES products(id)
+    ON DELETE CASCADE,
+
+  /* ================= OPTIONS ================= */
+
+  option_1 text,              -- color
+  option_2 text,              -- size
+  option_3 text,              -- material
+
+  option_label_1 text,        -- "Color"
+  option_label_2 text,        -- "Size"
+  option_label_3 text,        -- "Material"
+
+  name text NOT NULL DEFAULT '',   -- "Red - XL"
+
+  /* ================= SKU ================= */
+
+  sku text,
+
+  /* ================= PRICE ================= */
+
+  price numeric NOT NULL DEFAULT 0,
+  sale_price numeric,
+  final_price numeric NOT NULL DEFAULT 0,
+
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* ================= STOCK ================= */
+
+  stock integer NOT NULL DEFAULT 0,
+  is_unlimited boolean NOT NULL DEFAULT false,
+
+  /* ================= MEDIA ================= */
+
+  image text NOT NULL DEFAULT '',
+
+  /* ================= STATUS ================= */
+
+  is_active boolean NOT NULL DEFAULT true,
+
+  /* ================= SORT ================= */
+
+  sort_order integer NOT NULL DEFAULT 0,
+
+  /* ================= ANALYTICS ================= */
+
+  sold integer NOT NULL DEFAULT 0,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
+);
