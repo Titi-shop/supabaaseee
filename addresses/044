@@ -1,0 +1,1 @@
+id uuid ,full_name text ,phone text ,country text ,province text ,district text ,ward text ,address_line text ,postal_code text ,label text ,is_default boolean ,created_at timestamp with time zone ,updated_at timestamp with time zone ,user_id uuid.
