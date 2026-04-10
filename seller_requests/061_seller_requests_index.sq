@@ -1,8 +1,8 @@
-CREATE INDEX IF NOT EXISTS idx_seller_requests_user
-ON public.seller_requests(user_id);
+CREATE INDEX idx_seller_requests_user
+ON seller_requests(user_id);
 
-CREATE INDEX IF NOT EXISTS idx_seller_requests_status
-ON public.seller_requests(status);
+CREATE INDEX idx_seller_requests_status
+ON seller_requests(status);
 
-CREATE INDEX IF NOT EXISTS idx_seller_requests_created
-ON public.seller_requests(created_at DESC);
+CREATE UNIQUE INDEX idx_seller_requests_request_key
+ON seller_requests(request_key);
