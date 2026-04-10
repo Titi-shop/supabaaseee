@@ -1,30 +1,48 @@
-CREATE TABLE IF NOT EXISTS public.addresses (
+CREATE TABLE addresses (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  /* ================= USER ================= */
-  user_id uuid NOT NULL
-    REFERENCES public.users(id)
-    ON DELETE CASCADE,
+  /* ================= OWNER ================= */
+
+  user_id uuid NOT NULL,
 
   /* ================= CONTACT ================= */
-  full_name text NOT NULL,
-  phone text NOT NULL,
+
+  full_name text NOT NULL DEFAULT '',
+  phone text NOT NULL DEFAULT '',
 
   /* ================= LOCATION ================= */
-  country text NOT NULL,
-  province text NOT NULL,
-  district text,
+
+  country text NOT NULL DEFAULT '',
+
+  address_line text NOT NULL DEFAULT '',
+
   ward text,
-  address_line text NOT NULL,
+  district text,
+  region text,           -- province / state / city (global chuẩn)
+
   postal_code text,
 
-  /* ================= TYPE ================= */
-  label text DEFAULT 'home'
-    CHECK (label IN ('home','office','other')),
+  /* ================= SHIPPING META ================= */
+
+  latitude numeric,
+  longitude numeric,
+
+  place_id text,         -- Google Place ID (future-ready)
+
+  /* ================= LABEL ================= */
+
+  label text NOT NULL DEFAULT 'home'
+    CHECK (label IN ('home', 'office', 'other')),
 
   is_default boolean NOT NULL DEFAULT false,
 
-  /* ================= SYSTEM ================= */
+  /* ================= VALIDATION ================= */
+
+  is_verified boolean NOT NULL DEFAULT false,
+
+  /* ================= TIME ================= */
+
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
