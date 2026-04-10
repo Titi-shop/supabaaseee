@@ -1,0 +1,7 @@
+CREATE UNIQUE INDEX unique_variant_combination
+ON product_variants(
+  product_id,
+  COALESCE(option_1, ''),
+  COALESCE(option_2, ''),
+  COALESCE(option_3, '')
+);
