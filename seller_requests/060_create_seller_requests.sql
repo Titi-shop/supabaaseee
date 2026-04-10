@@ -1,38 +1,44 @@
-CREATE TABLE IF NOT EXISTS public.seller_requests (
-  id uuid primary key default gen_random_uuid(),
+CREATE TABLE seller_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  user_id text not null
-    references public.users(pi_uid)
-    on delete cascade,
+  user_id uuid NOT NULL,
 
-  username text not null,
+  /* USER SNAPSHOT (freeze data khi apply) */
+  username text NOT NULL DEFAULT '',
+  email text NOT NULL DEFAULT '',
+  phone text NOT NULL DEFAULT '',
 
-  -- SHOP INFO
-  shop_name text not null,
-  shop_description text,
-  shop_logo text,
-  shop_banner text,
+  /* SHOP INFO */
+  shop_name text NOT NULL DEFAULT '',
+  shop_slug text NOT NULL DEFAULT '',
+  shop_description text NOT NULL DEFAULT '',
+  shop_logo text NOT NULL DEFAULT '',
+  shop_banner text NOT NULL DEFAULT '',
 
-  -- CONTACT
-  phone text,
-  email text,
+  /* KYC */
+  identity_number text NOT NULL DEFAULT '',
+  identity_document_url text NOT NULL DEFAULT '',
 
-  -- OPTIONAL KYC
-  identity_number text,
-  identity_document_url text,
+  /* STATUS */
+  status text NOT NULL DEFAULT 'pending',
+  -- pending | approved | rejected | blocked
 
-  -- STATUS
-  status text not null default 'pending'
-    check (status in ('pending','approved','rejected')),
+  rejection_reason text,
+  admin_note text NOT NULL DEFAULT '',
 
-  admin_note text,
-
-  reviewed_by text
-    references public.users(pi_uid)
-    on delete set null,
-
+  /* REVIEW */
+  reviewed_by uuid, -- admin user_id
   reviewed_at timestamptz,
 
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  /* IDEMPOTENCY */
+  request_key text UNIQUE, -- chống spam submit
+
+  /* METADATA */
+  ip_address text,
+  user_agent text,
+
+  /* TIME */
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
