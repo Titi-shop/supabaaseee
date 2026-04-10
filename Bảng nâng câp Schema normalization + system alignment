@@ -1,0 +1,20 @@
+UPGRADE TABLE: orders
+
+GOAL:
+- chuẩn hoá shipping address
+
+CURRENT USING:
+- API đang trả: shipping_address
+- UI đang dùng: order.shipping_address
+
+CHANGE:
+- ADD shipping_address_line
+- giữ shipping_address (legacy)
+
+RULE:
+- không break UI cũ
+- mapping tạm thời trong API
+
+OUTPUT:
+- SQL migration
+- API mapping (shipping_address → shipping_address_line)
