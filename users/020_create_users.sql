@@ -1,19 +1,31 @@
-CREATE TABLE IF NOT EXISTS public.users (
-  pi_uid text primary key,
+CREATE TABLE public.users (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  username text not null unique,
+  /* ================= AUTH (PI) ================= */
 
-  role text not null default 'customer'
-    check (role in ('customer','seller','admin')),
+  pi_uid text NOT NULL UNIQUE,
 
-  wallet_address text unique,
+  /* ================= BASIC ================= */
 
-  is_verified boolean not null default false,
-  is_seller boolean not null default false,
-  is_banned boolean not null default false,
+  username text NOT NULL DEFAULT '',
+  role text NOT NULL DEFAULT 'customer'
+    CHECK (role IN ('customer', 'seller', 'admin')),
+
+  is_active boolean NOT NULL DEFAULT true,
+  is_banned boolean NOT NULL DEFAULT false,
+
+  /* ================= META ================= */
 
   last_login_at timestamptz,
+  login_count integer NOT NULL DEFAULT 0,
 
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  /* ================= FLAGS ================= */
+
+  is_verified boolean NOT NULL DEFAULT false,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
