@@ -1,61 +1,37 @@
-DROP TABLE IF EXISTS public.order_items CASCADE;
+CREATE TABLE order_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id uuid NOT NULL,
+  seller_id uuid NOT NULL,
+  product_id uuid,
+  variant_id uuid,
 
-CREATE TABLE public.order_items (
-  id uuid primary key default gen_random_uuid(),
+  product_name text NOT NULL DEFAULT '',
+  product_slug text NOT NULL DEFAULT '',
+  thumbnail text NOT NULL DEFAULT '',
+  images text[] NOT NULL DEFAULT '{}',
 
-  order_id uuid not null
-    references public.orders(id)
-    on delete cascade,
+  variant_name text NOT NULL DEFAULT '',
+  variant_value text NOT NULL DEFAULT '',
 
-  product_id uuid
-    references public.products(id)
-    on delete set null,
+  is_digital boolean NOT NULL DEFAULT false,
 
-  seller_id text not null
-    references public.users(pi_uid)
-    on delete cascade,
+  unit_price numeric NOT NULL DEFAULT 0,
+  quantity integer NOT NULL DEFAULT 1,
+  total_price numeric NOT NULL DEFAULT 0,
 
-  product_name text not null,
-  product_slug text,
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
 
-  thumbnail text not null,
-  images text[],
+  status text NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','confirmed','shipping','completed','cancelled')),
 
-  unit_price numeric(20,8) not null check (unit_price >= 0),
-  quantity integer not null check (quantity > 0),
-  total_price numeric(20,8) not null check (total_price >= 0),
-
-  is_digital boolean not null default false,
-
-  status text not null default 'pending'
-    check (status in (
-      'pending',
-      'confirmed',
-      'shipping',
-      'completed',
-      'returned',
-      'cancelled'
-    )),
+  seller_message text NOT NULL DEFAULT '',
+  seller_cancel_reason text NOT NULL DEFAULT '',
 
   tracking_code text,
-
   shipped_at timestamptz,
   delivered_at timestamptz,
 
-  seller_message text,
-  seller_cancel_reason text,
-
-  created_at timestamptz not null default now(),
-
-  constraint order_items_shipping_requires_time
-    check (
-      status != 'shipping'
-      or shipped_at is not null
-    ),
-
-  constraint order_items_completed_requires_time
-    check (
-      status != 'completed'
-      or delivered_at is not null
-    )
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
