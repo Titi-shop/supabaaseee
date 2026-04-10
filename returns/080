@@ -1,0 +1,70 @@
+CREATE TABLE returns (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* ================= RELATION ================= */
+
+  order_id uuid NOT NULL,
+  buyer_id uuid NOT NULL,
+  seller_id uuid NOT NULL,
+
+  /* ================= IDENTIFIER ================= */
+
+  return_number text NOT NULL DEFAULT '',
+  return_key text UNIQUE, -- idempotency
+
+  /* ================= STATUS ================= */
+
+  status text NOT NULL DEFAULT 'pending',
+  -- pending
+  -- approved
+  -- rejected
+  -- shipping_back
+  -- received
+  -- refunded
+  -- cancelled
+
+  /* ================= REASON ================= */
+
+  reason text NOT NULL DEFAULT '',
+  description text NOT NULL DEFAULT '',
+
+  evidence_images text[] NOT NULL DEFAULT '{}',
+
+  /* ================= MONEY ================= */
+
+  refund_amount numeric NOT NULL DEFAULT 0,
+  currency text NOT NULL DEFAULT 'PI',
+
+  refund_status text NOT NULL DEFAULT 'pending',
+  -- pending | processing | completed | failed
+
+  refunded_at timestamptz,
+
+  /* ================= SHIPPING RETURN ================= */
+
+  return_tracking_code text,
+  return_shipping_provider text,
+
+  shipped_back_at timestamptz,
+  received_at timestamptz,
+
+  /* ================= REVIEW ================= */
+
+  seller_note text NOT NULL DEFAULT '',
+  admin_note text NOT NULL DEFAULT '',
+
+  reviewed_by uuid,
+  reviewed_at timestamptz,
+
+  /* ================= METADATA ================= */
+
+  ip_address text,
+  user_agent text,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  cancelled_at timestamptz,
+  deleted_at timestamptz
+);
