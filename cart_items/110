@@ -5,10 +5,13 @@ CREATE TABLE cart_items (
 
   user_id uuid NOT NULL,
 
-  /* ================= PRODUCT SNAPSHOT ================= */
+  /* ================= RELATION ================= */
 
   product_id uuid NOT NULL,
   variant_id uuid,
+  seller_id uuid NOT NULL,
+
+  /* ================= PRODUCT SNAPSHOT ================= */
 
   product_name text NOT NULL DEFAULT '',
   product_slug text NOT NULL DEFAULT '',
@@ -19,6 +22,7 @@ CREATE TABLE cart_items (
   /* ================= PRICE ================= */
 
   unit_price numeric NOT NULL DEFAULT 0,
+  final_price numeric NOT NULL DEFAULT 0, -- 🔥 QUAN TRỌNG
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
 
@@ -30,7 +34,6 @@ CREATE TABLE cart_items (
   /* ================= FLAGS ================= */
 
   is_selected boolean NOT NULL DEFAULT true,
-
   is_available boolean NOT NULL DEFAULT true,
 
   /* ================= VALIDATION ================= */
@@ -38,8 +41,18 @@ CREATE TABLE cart_items (
   stock_snapshot integer,
   is_unlimited boolean NOT NULL DEFAULT false,
 
+  price_snapshot numeric, -- 🔥 check price change
+  is_price_changed boolean NOT NULL DEFAULT false,
+  is_out_of_stock boolean NOT NULL DEFAULT false,
+
+  /* ================= METADATA ================= */
+
+  added_from text, -- web / mobile / campaign
+  note text,
+
   /* ================= TIME ================= */
 
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
