@@ -1,12 +1,19 @@
 CREATE TABLE order_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* ================= RELATION ================= */
+
   order_id uuid NOT NULL,
   seller_id uuid NOT NULL,
+
   product_id uuid,
   variant_id uuid,
 
+  /* ================= PRODUCT SNAPSHOT ================= */
+
   product_name text NOT NULL DEFAULT '',
   product_slug text NOT NULL DEFAULT '',
+
   thumbnail text NOT NULL DEFAULT '',
   images text[] NOT NULL DEFAULT '{}',
 
@@ -15,6 +22,8 @@ CREATE TABLE order_items (
 
   is_digital boolean NOT NULL DEFAULT false,
 
+  /* ================= PRICE ================= */
+
   unit_price numeric NOT NULL DEFAULT 0,
   quantity integer NOT NULL DEFAULT 1,
   total_price numeric NOT NULL DEFAULT 0,
@@ -22,16 +31,44 @@ CREATE TABLE order_items (
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
 
+  /* ================= STATUS ================= */
+
   status text NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending','confirmed','shipping','completed','cancelled')),
+    CHECK (status IN (
+      'pending',
+      'confirmed',
+      'shipping',
+      'completed',
+      'cancelled',
+      'refunded'
+    )),
+
+  /* ================= SHIPPING ================= */
+
+  tracking_code text,
+  shipping_provider text,
+
+  shipped_at timestamptz,
+  delivered_at timestamptz,
+
+  /* ================= SELLER ACTION ================= */
 
   seller_message text NOT NULL DEFAULT '',
   seller_cancel_reason text NOT NULL DEFAULT '',
 
-  tracking_code text,
-  shipped_at timestamptz,
-  delivered_at timestamptz,
+  /* ================= REFUND ================= */
+
+  refunded_amount numeric NOT NULL DEFAULT 0,
+  refunded_at timestamptz,
+
+  /* ================= ANALYTICS ================= */
+
+  cost_price numeric, -- giá vốn (optional, phục vụ profit)
+  profit_amount numeric, -- optional
+
+  /* ================= TIME ================= */
 
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
