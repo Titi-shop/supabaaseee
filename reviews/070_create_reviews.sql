@@ -1,45 +1,69 @@
-CREATE TABLE IF NOT EXISTS public.reviews (
-  id uuid primary key default gen_random_uuid(),
+CREATE TABLE reviews (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  order_id uuid not null
-    references public.orders(id)
-    on delete cascade,
+  /* ================= RELATION ================= */
 
-  order_item_id uuid not null
-    references public.order_items(id)
-    on delete cascade,
+  user_id uuid NOT NULL,
+  seller_id uuid NOT NULL,
 
-  product_id uuid not null
-    references public.products(id)
-    on delete cascade,
+  order_id uuid NOT NULL,
+  order_item_id uuid NOT NULL,
 
-  seller_id text not null
-    references public.users(pi_uid)
-    on delete cascade,
+  product_id uuid NOT NULL,
+  variant_id uuid,
 
-  user_id text not null
-    references public.users(pi_uid)
-    on delete cascade,
+  /* ================= SNAPSHOT ================= */
 
-  -- SNAPSHOT
-  product_name text not null,
-  product_thumbnail text,
+  product_name text NOT NULL DEFAULT '',
+  product_slug text NOT NULL DEFAULT '',
+  product_thumbnail text NOT NULL DEFAULT '',
 
-  -- REVIEW DATA
-  rating integer not null
-    check (rating between 1 and 5),
+  unit_price numeric NOT NULL DEFAULT 0,
 
-  comment text,
+  /* ================= RATING ================= */
 
-  is_verified_purchase boolean not null default true,
-  is_hidden boolean not null default false,
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+
+  /* optional breakdown */
+  rating_quality integer,
+  rating_shipping integer,
+  rating_service integer,
+
+  /* ================= CONTENT ================= */
+
+  comment text NOT NULL DEFAULT '',
+
+  images text[] NOT NULL DEFAULT '{}',
+  videos text[] NOT NULL DEFAULT '{}',
+
+  /* ================= FLAGS ================= */
+
+  is_verified_purchase boolean NOT NULL DEFAULT true,
+  is_hidden boolean NOT NULL DEFAULT false,
+
+  status text NOT NULL DEFAULT 'published',
+  -- published | hidden | pending | rejected
+
+  /* ================= SELLER REPLY ================= */
 
   seller_reply text,
   seller_replied_at timestamptz,
 
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
+  /* ================= MODERATION ================= */
 
-  -- mỗi order_item chỉ review 1 lần / user
-  UNIQUE (order_item_id, user_id)
+  is_flagged boolean NOT NULL DEFAULT false,
+  flag_reason text,
+
+  reported_count integer NOT NULL DEFAULT 0,
+
+  /* ================= METADATA ================= */
+
+  ip_address text,
+  user_agent text,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
