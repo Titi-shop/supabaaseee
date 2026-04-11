@@ -1,5 +1,28 @@
-create index cart_items_buyer_idx
-on cart_items (buyer_id);
+ALTER TABLE public.cart_items
+ADD CONSTRAINT fk_cart_items_user
+FOREIGN KEY (user_id)
+REFERENCES public.users(id)
+ON DELETE CASCADE;
 
-create index cart_items_product_idx
-on cart_items (product_id);
+
+ALTER TABLE public.cart_items
+ADD CONSTRAINT fk_cart_items_product
+FOREIGN KEY (product_id)
+REFERENCES public.products(id);
+
+
+ALTER TABLE public.cart_items
+ADD CONSTRAINT fk_cart_items_variant
+FOREIGN KEY (variant_id)
+REFERENCES public.product_variants(id);
+
+
+ALTER TABLE public.cart_items
+ADD CONSTRAINT fk_cart_items_seller
+FOREIGN KEY (seller_id)
+REFERENCES public.users(id);
+
+
+CREATE UNIQUE INDEX idx_cart_items_unique
+ON public.cart_items(user_id, product_id, variant_id)
+WHERE deleted_at IS NULL;
