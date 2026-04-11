@@ -1,1 +1,0 @@
-id uuid ,order_id uuid ,order_item_id uuid ,product_id uuid ,product_name text ,product_thumbnail text ,rating integer ,comment text ,is_verified_purchase boolean ,is_hidden boolean ,seller_reply text ,seller_replied_at timestamp with time zone ,created_at timestamp with time zone ,updated_at timestamp with time zone, user_id uuid, seller_id uuid.
