@@ -1,0 +1,80 @@
+CREATE TABLE public.notifications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* ================= RECEIVER ================= */
+
+  user_id uuid NOT NULL,
+
+  /* ================= TYPE ================= */
+
+  type text NOT NULL,
+  -- order_created
+  -- order_confirmed
+  -- order_shipping
+  -- order_completed
+  -- order_cancelled
+  -- return_created
+  -- return_approved
+  -- return_rejected
+  -- refund_completed
+  -- review_received
+  -- system
+
+  category text NOT NULL DEFAULT 'general',
+  -- order | return | review | system
+
+  /* ================= CONTENT ================= */
+
+  title text NOT NULL DEFAULT '',
+  message text NOT NULL DEFAULT '',
+
+  image_url text,
+
+  /* ================= ACTION ================= */
+
+  action_type text, -- open_order | open_return | open_product | external
+  action_url text,
+
+  /* ================= RELATION ================= */
+
+  order_id uuid,
+  order_item_id uuid,
+  product_id uuid,
+  return_id uuid,
+  review_id uuid,
+
+  /* ================= STATE ================= */
+
+  is_seen boolean NOT NULL DEFAULT false,
+  seen_at timestamptz,
+
+  is_read boolean NOT NULL DEFAULT false,
+  read_at timestamptz,
+
+  /* ================= PRIORITY ================= */
+
+  priority text NOT NULL DEFAULT 'normal',
+  -- low | normal | high | urgent
+
+  /* ================= DELIVERY ================= */
+
+  is_pushed boolean NOT NULL DEFAULT false,
+  pushed_at timestamptz,
+
+  /* ================= DEDUP ================= */
+
+  dedupe_key text, -- chống spam notification
+
+  /* ================= METADATA ================= */
+
+  extra_data jsonb,
+
+  /* ================= SOFT DELETE ================= */
+
+  deleted_at timestamptz,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
