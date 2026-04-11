@@ -1,7 +1,58 @@
-CREATE UNIQUE INDEX unique_variant_combination
-ON product_variants(
-  product_id,
-  COALESCE(option_1, ''),
-  COALESCE(option_2, ''),
-  COALESCE(option_3, '')
-);
+/* ================= RELATION ================= */
+
+-- load variants theo product (QUAN TRỌNG NHẤT)
+CREATE INDEX IF NOT EXISTS idx_product_variants_product_id
+ON public.product_variants(product_id);
+
+
+/* ================= ACTIVE ================= */
+
+-- chỉ lấy variant active
+CREATE INDEX IF NOT EXISTS idx_product_variants_active
+ON public.product_variants(is_active);
+
+
+/* ================= PRODUCT + ACTIVE ================= */
+
+-- load nhanh cho product page
+CREATE INDEX IF NOT EXISTS idx_product_variants_product_active
+ON public.product_variants(product_id, is_active)
+WHERE deleted_at IS NULL;
+
+
+/* ================= PRICE ================= */
+
+CREATE INDEX IF NOT EXISTS idx_product_variants_price
+ON public.product_variants(final_price);
+
+
+/* ================= STOCK ================= */
+
+CREATE INDEX IF NOT EXISTS idx_product_variants_stock
+ON public.product_variants(stock);
+
+
+/* ================= SKU ================= */
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_product_variants_sku
+ON public.product_variants(sku)
+WHERE sku IS NOT NULL;
+
+
+/* ================= SORT ================= */
+
+CREATE INDEX IF NOT EXISTS idx_product_variants_sort
+ON public.product_variants(product_id, sort_order);
+
+
+/* ================= SOFT DELETE ================= */
+
+CREATE INDEX IF NOT EXISTS idx_product_variants_not_deleted
+ON public.product_variants(id)
+WHERE deleted_at IS NULL;
+
+
+/* ================= ANALYTICS ================= */
+
+CREATE INDEX IF NOT EXISTS idx_product_variants_sold
+ON public.product_variants(sold DESC);
