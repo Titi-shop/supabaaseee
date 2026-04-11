@@ -1,0 +1,38 @@
+ALTER TABLE public.notifications
+ADD CONSTRAINT fk_notifications_user
+FOREIGN KEY (user_id)
+REFERENCES public.users(id)
+ON DELETE CASCADE;
+
+
+
+ALTER TABLE public.notifications
+ADD CONSTRAINT fk_notifications_order
+FOREIGN KEY (order_id)
+REFERENCES public.orders(id)
+ON DELETE CASCADE;
+
+
+ALTER TABLE public.notifications
+ADD CONSTRAINT fk_notifications_order_item
+FOREIGN KEY (order_item_id)
+REFERENCES public.order_items(id)
+ON DELETE CASCADE;
+
+
+ALTER TABLE public.notifications
+ADD CONSTRAINT fk_notifications_product
+FOREIGN KEY (product_id)
+REFERENCES public.products(id);
+
+
+ALTER TABLE public.notifications
+ADD CONSTRAINT fk_notifications_return
+FOREIGN KEY (return_id)
+REFERENCES public.returns(id);
+
+
+ALTER TABLE public.notifications
+ADD CONSTRAINT fk_notifications_review
+FOREIGN KEY (review_id)
+REFERENCES public.reviews(id);
