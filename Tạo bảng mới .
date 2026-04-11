@@ -1,0 +1,25 @@
+Thiết kế bảng: <tên_bảng>
+
+Mục đích:
+- bảng này dùng để làm gì
+
+Liên kết:
+- liên quan tới bảng nào (orders, users, products...)
+
+Yêu cầu:
+- có cần soft delete không
+- có cần snapshot không
+- có cần chống duplicate không
+- có cần workflow/status không
+
+Dữ liệu chính:
+- các field bạn muốn có
+
+Flow sử dụng:
+- dữ liệu sẽ được tạo khi nào
+- update khi nào
+- ai sử dụng (buyer / seller / admin)
+
+Yêu cầu thêm:
+- scale lớn không
+- có cần index tối ưu không
