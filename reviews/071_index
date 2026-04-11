@@ -1,0 +1,71 @@
+/* ================= PRODUCT ================= */
+
+-- load review theo product
+CREATE INDEX IF NOT EXISTS idx_reviews_product_id
+ON public.reviews(product_id);
+
+/* product + status */
+CREATE INDEX IF NOT EXISTS idx_reviews_product_status
+ON public.reviews(product_id, status)
+WHERE deleted_at IS NULL;
+
+
+/* ================= USER ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_user_id
+ON public.reviews(user_id);
+
+
+/* ================= SELLER ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_seller_id
+ON public.reviews(seller_id);
+
+
+/* ================= RATING ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_rating
+ON public.reviews(rating);
+
+-- top review
+CREATE INDEX IF NOT EXISTS idx_reviews_rating_desc
+ON public.reviews(rating DESC);
+
+
+/* ================= STATUS ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_status
+ON public.reviews(status);
+
+
+/* ================= VERIFIED ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_verified
+ON public.reviews(is_verified_purchase);
+
+
+/* ================= FLAG ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_flagged
+ON public.reviews(is_flagged)
+WHERE is_flagged = true;
+
+
+/* ================= TIME ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_created_at
+ON public.reviews(created_at DESC);
+
+
+/* ================= SOFT DELETE ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_not_deleted
+ON public.reviews(id)
+WHERE deleted_at IS NULL;
+
+
+/* ================= PRODUCT PAGE (PRO) ================= */
+
+CREATE INDEX IF NOT EXISTS idx_reviews_product_rating_created
+ON public.reviews(product_id, rating DESC, created_at DESC)
+WHERE status = 'published' AND deleted_at IS NULL;
