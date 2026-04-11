@@ -1,94 +1,10 @@
-/* ================= CORE ================= */
-
--- 🔥 Buyer: load lịch sử đơn hàng
-CREATE INDEX IF NOT EXISTS idx_orders_buyer
-ON public.orders(buyer_id);
-
--- 🔥 Seller: dashboard đơn hàng
-CREATE INDEX IF NOT EXISTS idx_orders_seller
-ON public.orders(seller_id);
-
-
-/* ================= STATUS (QUAN TRỌNG NHẤT) ================= */
-
--- 🔥 Seller + status (dùng nhiều nhất)
-CREATE INDEX IF NOT EXISTS idx_orders_seller_status
-ON public.orders(seller_id, status)
+CREATE INDEX idx_orders_seller_status
+ON orders(seller_id, status)
 WHERE deleted_at IS NULL;
 
--- 🔥 Buyer + status
-CREATE INDEX IF NOT EXISTS idx_orders_buyer_status
-ON public.orders(buyer_id, status)
+CREATE INDEX idx_orders_buyer_status
+ON orders(buyer_id, status)
 WHERE deleted_at IS NULL;
 
--- 🔥 Status đơn lẻ (admin / filter)
-CREATE INDEX IF NOT EXISTS idx_orders_status
-ON public.orders(status);
-
-
-/* ================= TIME / SORT ================= */
-
--- 🔥 List đơn mới nhất
-CREATE INDEX IF NOT EXISTS idx_orders_created_at
-ON public.orders(created_at DESC);
-
--- 🔥 Seller + time (dashboard)
-CREATE INDEX IF NOT EXISTS idx_orders_seller_created
-ON public.orders(seller_id, created_at DESC)
-WHERE deleted_at IS NULL;
-
--- 🔥 Buyer + time
-CREATE INDEX IF NOT EXISTS idx_orders_buyer_created
-ON public.orders(buyer_id, created_at DESC)
-WHERE deleted_at IS NULL;
-
-
-/* ================= PAYMENT ================= */
-
--- 🔥 Idempotency (tránh duplicate order)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_idempotency
-ON public.orders(idempotency_key);
-
--- 🔥 Payment lookup
-CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_pi_payment
-ON public.orders(pi_payment_id);
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_pi_txid
-ON public.orders(pi_txid);
-
--- 🔥 Payment status filter
-CREATE INDEX IF NOT EXISTS idx_orders_payment_status
-ON public.orders(payment_status);
-
-
-/* ================= SOFT DELETE ================= */
-
--- 🔥 chỉ lấy order chưa xoá
-CREATE INDEX IF NOT EXISTS idx_orders_not_deleted
-ON public.orders(id)
-WHERE deleted_at IS NULL;
-
-
-/* ================= SHIPPING ================= */
-
--- 🔥 filter theo zone
-CREATE INDEX IF NOT EXISTS idx_orders_shipping_zone
-ON public.orders(shipping_zone);
-
--- 🔥 filter theo provider
-CREATE INDEX IF NOT EXISTS idx_orders_shipping_provider
-ON public.orders(shipping_provider);
-
-
-/* ================= ANALYTICS ================= */
-
--- 🔥 query tổng tiền theo thời gian
-CREATE INDEX IF NOT EXISTS idx_orders_created_total
-ON public.orders(created_at, total);
-
-
-/* ================= SEARCH ================= */
-
--- 🔥 tìm theo order_number
-CREATE INDEX IF NOT EXISTS idx_orders_order_number
-ON public.orders(order_number);
+CREATE INDEX idx_orders_created_at
+ON orders(created_at DESC);
