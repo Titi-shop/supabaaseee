@@ -1,0 +1,77 @@
+/* ================= PRIMARY ================= */
+/* auto: order_items_pkey (id) */
+
+
+/* ================= RELATION ================= */
+
+/* theo order (truy vấn chi tiết đơn) */
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id
+ON public.order_items(order_id);
+
+/* theo seller (dashboard seller) */
+CREATE INDEX IF NOT EXISTS idx_order_items_seller_id
+ON public.order_items(seller_id);
+
+/* theo product */
+CREATE INDEX IF NOT EXISTS idx_order_items_product_id
+ON public.order_items(product_id);
+
+
+/* ================= STATUS ================= */
+
+/* filter theo trạng thái */
+CREATE INDEX IF NOT EXISTS idx_order_items_status
+ON public.order_items(status);
+
+/* seller + status (QUAN TRỌNG NHẤT) */
+CREATE INDEX IF NOT EXISTS idx_order_items_seller_status
+ON public.order_items(seller_id, status);
+
+
+/* ================= SHIPPING ================= */
+
+/* tracking */
+CREATE INDEX IF NOT EXISTS idx_order_items_tracking_code
+ON public.order_items(tracking_code);
+
+/* shipped */
+CREATE INDEX IF NOT EXISTS idx_order_items_shipped_at
+ON public.order_items(shipped_at);
+
+/* delivered */
+CREATE INDEX IF NOT EXISTS idx_order_items_delivered_at
+ON public.order_items(delivered_at);
+
+
+/* ================= TIME ================= */
+
+/* sort theo thời gian */
+CREATE INDEX IF NOT EXISTS idx_order_items_created_at
+ON public.order_items(created_at DESC);
+
+
+/* ================= SOFT DELETE ================= */
+
+/* chỉ lấy item active */
+CREATE INDEX IF NOT EXISTS idx_order_items_not_deleted
+ON public.order_items(deleted_at)
+WHERE deleted_at IS NULL;
+
+
+/* ================= ADVANCED (PRO) ================= */
+
+/* seller dashboard (lọc + sort) */
+CREATE INDEX IF NOT EXISTS idx_order_items_seller_status_created
+ON public.order_items(seller_id, status, created_at DESC)
+WHERE deleted_at IS NULL;
+
+
+/* order + status (chi tiết đơn + filter item) */
+CREATE INDEX IF NOT EXISTS idx_order_items_order_status
+ON public.order_items(order_id, status);
+
+
+/* refund query */
+CREATE INDEX IF NOT EXISTS idx_order_items_refunded
+ON public.order_items(refunded_at)
+WHERE refunded_at IS NOT NULL;
