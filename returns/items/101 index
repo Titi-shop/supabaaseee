@@ -1,0 +1,31 @@
+/* ================= RELATION ================= */
+
+CREATE INDEX IF NOT EXISTS idx_return_items_return_id
+ON public.return_items(return_id);
+
+CREATE INDEX IF NOT EXISTS idx_return_items_order_item_id
+ON public.return_items(order_item_id);
+
+
+/* ================= PRODUCT ================= */
+
+CREATE INDEX IF NOT EXISTS idx_return_items_product_id
+ON public.return_items(product_id);
+
+
+/* ================= STATUS ================= */
+
+CREATE INDEX IF NOT EXISTS idx_return_items_status
+ON public.return_items(status);
+
+
+/* ================= RETURN DASHBOARD ================= */
+
+CREATE INDEX IF NOT EXISTS idx_return_items_return_status
+ON public.return_items(return_id, status);
+
+
+/* ================= TIME ================= */
+
+CREATE INDEX IF NOT EXISTS idx_return_items_created_at
+ON public.return_items(created_at DESC);
