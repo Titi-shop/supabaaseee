@@ -1,2 +1,0 @@
-create unique index cart_items_unique
-on cart_items (buyer_id, product_id, variant_id);

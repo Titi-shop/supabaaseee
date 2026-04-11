@@ -1,0 +1,32 @@
+/* USER */
+CREATE INDEX idx_cart_items_user_id
+ON public.cart_items(user_id);
+
+/* USER ACTIVE */
+CREATE INDEX idx_cart_items_user_active
+ON public.cart_items(user_id, is_selected)
+WHERE deleted_at IS NULL;
+
+/* PRODUCT */
+CREATE INDEX idx_cart_items_product_id
+ON public.cart_items(product_id);
+
+/* SELLER */
+CREATE INDEX idx_cart_items_seller_id
+ON public.cart_items(seller_id);
+
+/* FLAGS */
+CREATE INDEX idx_cart_items_price_changed
+ON public.cart_items(is_price_changed);
+
+CREATE INDEX idx_cart_items_out_of_stock
+ON public.cart_items(is_out_of_stock);
+
+/* TIME */
+CREATE INDEX idx_cart_items_created_at
+ON public.cart_items(created_at DESC);
+
+/* SOFT DELETE */
+CREATE INDEX idx_cart_items_not_deleted
+ON public.cart_items(id)
+WHERE deleted_at IS NULL;
