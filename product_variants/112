@@ -1,3 +1,8 @@
-CREATE INDEX idx_variants_product_id ON product_variants(product_id);
-CREATE INDEX idx_variants_active ON product_variants(is_active);
-CREATE INDEX idx_variants_sku ON product_variants(sku);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_product_variants_unique
+ON public.product_variants(
+  product_id,
+  option_1,
+  option_2,
+  option_3
+)
+WHERE deleted_at IS NULL;
