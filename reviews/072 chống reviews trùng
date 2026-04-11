@@ -1,0 +1,3 @@
+CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_unique_order_item
+ON public.reviews(order_item_id)
+WHERE deleted_at IS NULL;
