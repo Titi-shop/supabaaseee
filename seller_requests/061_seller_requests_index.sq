@@ -1,8 +1,0 @@
-CREATE INDEX idx_seller_requests_user
-ON seller_requests(user_id);
-
-CREATE INDEX idx_seller_requests_status
-ON seller_requests(status);
-
-CREATE UNIQUE INDEX idx_seller_requests_request_key
-ON seller_requests(request_key);
