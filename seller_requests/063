@@ -1,2 +1,0 @@
-id uuid , username text ,shop_name text ,shop_description text ,shop_logo text ,shop_banner text ,phone text ,email text ,identity_number text ,identity_document_url text ,status text ,admin_note text ,reviewed_by text ,reviewed_at timestamp with time zone ,created_at timestamp with time zone ,
-updated_at timestamp with time zone ,user_id uuid
