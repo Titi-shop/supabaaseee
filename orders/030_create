@@ -27,8 +27,8 @@ CREATE TABLE orders (
 
   /* ================= PRICE ================= */
 
-  items_total numeric NOT NULL DEFAULT 0,     -- sum order_items
-  subtotal numeric NOT NULL DEFAULT 0,        -- before discount
+  items_total numeric NOT NULL DEFAULT 0,
+  subtotal numeric NOT NULL DEFAULT 0,
   discount numeric NOT NULL DEFAULT 0,
   shipping_fee numeric NOT NULL DEFAULT 0,
   tax numeric NOT NULL DEFAULT 0,
@@ -61,15 +61,19 @@ CREATE TABLE orders (
   shipping_address_line text NOT NULL DEFAULT '',
   shipping_ward text,
   shipping_district text,
-  shipping_region text,        -- province / city
+  shipping_region text,
   shipping_country text NOT NULL DEFAULT '',
   shipping_postal_code text,
 
   shipping_provider text,
   shipping_zone text,
 
-  shipped_at timestamptz,
-  delivered_at timestamptz,
+  /* ================= TIMELINE (🔥 NEW) ================= */
+
+  confirmed_at timestamptz,   -- seller xác nhận đơn
+  shipped_at timestamptz,     -- đã giao cho vận chuyển
+  delivered_at timestamptz,   -- khách nhận hàng
+  returned_at timestamptz,    -- hoàn hàng
 
   /* ================= NOTE ================= */
 
