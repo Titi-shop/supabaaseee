@@ -33,15 +33,19 @@ CREATE TABLE order_items (
 
   /* ================= STATUS ================= */
 
-  status text NOT NULL DEFAULT 'pending'
-    CHECK (status IN (
-      'pending',
-      'confirmed',
-      'shipping',
-      'completed',
-      'cancelled',
-      'refunded'
-    )),
+  /* ================= STATUS ================= */
+
+status text NOT NULL DEFAULT 'pending'
+  CHECK (status IN (
+    'pending',
+    'confirmed',
+    'shipping',
+    'completed',
+    'cancelled',
+    'refunded'
+  )),
+
+confirmed_at timestamptz, -- 🔥 NEW (seller confirm)
 
   /* ================= SHIPPING ================= */
 
