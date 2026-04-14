@@ -1,0 +1,38 @@
+CREATE TABLE pi_payments (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- 🔑 USER
+  user_id uuid NOT NULL,
+
+  -- 🔥 PI DATA
+  pi_payment_id text NOT NULL UNIQUE,
+  txid text,
+
+  -- 💰 MONEY
+  amount numeric NOT NULL,
+
+  -- 📊 STATUS
+  status text NOT NULL DEFAULT 'pending',
+
+  -- 🌍 CONTEXT
+  country text,
+  zone text,
+
+  -- 📦 ORDER LINK (optional nhưng nên có)
+  order_id uuid,
+
+  -- 🕒 TIME
+  created_at timestamptz DEFAULT now(),
+  completed_at timestamptz,
+
+  -- 🔒 CONSTRAINT
+  CONSTRAINT fk_pi_payments_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_pi_payments_order
+    FOREIGN KEY (order_id)
+    REFERENCES orders(id)
+    ON DELETE SET NULL
+);
