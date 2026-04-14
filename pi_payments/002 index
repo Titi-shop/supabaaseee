@@ -1,7 +1,11 @@
--- lookup nhanh payment
-CREATE INDEX idx_pi_payments_user
+CREATE INDEX IF NOT EXISTS idx_pi_payments_user
 ON pi_payments(user_id);
 
--- check trạng thái
-CREATE INDEX idx_pi_payments_status
+CREATE INDEX IF NOT EXISTS idx_pi_payments_status
 ON pi_payments(status);
+
+CREATE INDEX IF NOT EXISTS idx_pi_payments_created
+ON pi_payments(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_pi_payments_order
+ON pi_payments(order_id);
