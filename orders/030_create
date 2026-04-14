@@ -3,15 +3,16 @@ CREATE TABLE orders (
 
   /* ================= IDENTITY ================= */
 
-  order_number text NOT NULL DEFAULT '',
+  order_number text NOT NULL UNIQUE DEFAULT gen_random_uuid()::text,
 
-  buyer_id uuid NOT NULL,
-  seller_id uuid NOT NULL,
+  buyer_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+  seller_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
 
   /* ================= PAYMENT ================= */
 
-  pi_payment_id text UNIQUE,
-  pi_txid text UNIQUE,
+  pi_payment_id text UNIQUE, -- idempotency chính
+  pi_txid text,              -- ❌ KHÔNG unique (tránh lỗi retry)
+
   idempotency_key text UNIQUE,
 
   payment_status text NOT NULL DEFAULT 'pending'
@@ -27,13 +28,13 @@ CREATE TABLE orders (
 
   /* ================= PRICE ================= */
 
-  items_total numeric NOT NULL DEFAULT 0,
-  subtotal numeric NOT NULL DEFAULT 0,
-  discount numeric NOT NULL DEFAULT 0,
-  shipping_fee numeric NOT NULL DEFAULT 0,
-  tax numeric NOT NULL DEFAULT 0,
+  items_total numeric NOT NULL DEFAULT 0 CHECK (items_total >= 0),
+  subtotal numeric NOT NULL DEFAULT 0 CHECK (subtotal >= 0),
+  discount numeric NOT NULL DEFAULT 0 CHECK (discount >= 0),
+  shipping_fee numeric NOT NULL DEFAULT 0 CHECK (shipping_fee >= 0),
+  tax numeric NOT NULL DEFAULT 0 CHECK (tax >= 0),
 
-  total numeric NOT NULL DEFAULT 0,
+  total numeric NOT NULL DEFAULT 0 CHECK (total >= 0),
 
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
@@ -68,12 +69,12 @@ CREATE TABLE orders (
   shipping_provider text,
   shipping_zone text,
 
-  /* ================= TIMELINE (🔥 NEW) ================= */
+  /* ================= TIMELINE ================= */
 
-  confirmed_at timestamptz,   -- seller xác nhận đơn
-  shipped_at timestamptz,     -- đã giao cho vận chuyển
-  delivered_at timestamptz,   -- khách nhận hàng
-  returned_at timestamptz,    -- hoàn hàng
+  confirmed_at timestamptz,
+  shipped_at timestamptz,
+  delivered_at timestamptz,
+  returned_at timestamptz,
 
   /* ================= NOTE ================= */
 
@@ -82,8 +83,8 @@ CREATE TABLE orders (
 
   /* ================= ANALYTICS ================= */
 
-  total_items integer NOT NULL DEFAULT 0,
-  total_quantity integer NOT NULL DEFAULT 0,
+  total_items integer NOT NULL DEFAULT 0 CHECK (total_items >= 0),
+  total_quantity integer NOT NULL DEFAULT 0 CHECK (total_quantity >= 0),
 
   /* ================= SOFT DELETE ================= */
 
