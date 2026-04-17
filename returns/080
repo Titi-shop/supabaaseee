@@ -67,4 +67,14 @@ CREATE TABLE returns (
   updated_at timestamptz NOT NULL DEFAULT now(),
   cancelled_at timestamptz,
   deleted_at timestamptz
+ALTER TABLE returns
+ADD COLUMN type text NOT NULL DEFAULT 'refund',
+ADD COLUMN resolution text NOT NULL DEFAULT '',
+ADD COLUMN closed_at timestamptz,
+ADD COLUMN approved_at timestamptz,
+ADD COLUMN rejected_at timestamptz,
+ADD COLUMN refund_txid text,
+ADD COLUMN refund_provider text,
+ADD COLUMN return_address_id uuid,
+ADD COLUMN auto_approved boolean NOT NULL DEFAULT false;
 );
