@@ -1,0 +1,5 @@
+ALTER TABLE return_items
+ADD CONSTRAINT fk_return
+FOREIGN KEY (return_id)
+REFERENCES returns(id)
+ON DELETE CASCADE;
