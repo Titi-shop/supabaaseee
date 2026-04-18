@@ -1,0 +1,6 @@
+id uuid ,order_id uuid ,order_item_id uuid ,product_id uuid ,quantity integer, refund_amount numeric ,reviewed_by uuid ,reviewed_at timestamp with time zone ,refunded_at timestamp with time zone ,created_at timestamp with time zone ,updated_at timestamp with time zone ,buyer_id uuid ,seller_id uuid ,
+shipped_back_at timestamp with time zone ,received_at timestamp with time zone ,cancelled_at timestamp with time zone ,deleted_at timestamp with time zone,
+closed_at timestamp with time zone ,approved_at timestamp with time zone ,rejected_at timestamp with time zone, return_address_id uuid ,return_address_id uuid,
+auto_approved boolean ,return_key text ,evidence_images ARRAY ,currency text ,product_name text ,product_thumbnail text ,refund_status text ,reason text ,
+description text ,images ARRAY ,return_tracking_code text ,status text ,seller_note text ,admin_note text ,return_shipping_provider tex ,type text ,
+resolution text ,ip_address text ,user_agent text ,refund_provider text ,refund_txid text ,return_number text .
