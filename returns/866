@@ -1,0 +1,1 @@
+id uuid ,return_id uuid ,order_item_id uuid ,product_id uuid ,variant_id uuid, product_name text,product_slug text ,thumbnail text ,unit_price numeric,quantity integer ,total_price numeric,return_quantity integer,refund_amount numeric ,reason text ,status text ,created_at timestamp with time zone ,updated_at timestamp with time zone.
