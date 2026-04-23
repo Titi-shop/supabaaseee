@@ -41,6 +41,11 @@ CREATE TABLE products (
 
   sale_start timestamptz,
   sale_end timestamptz,
+   /* ================= 🔥 FLASH SALE ================= */
+
+  sale_enabled boolean NOT NULL DEFAULT false,
+  sale_stock integer NOT NULL DEFAULT 0,
+  sale_sold integer NOT NULL DEFAULT 0,
 
   meta_title text NOT NULL DEFAULT '',
   meta_description text NOT NULL DEFAULT '',
