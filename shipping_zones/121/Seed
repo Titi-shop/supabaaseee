@@ -1,8 +1,11 @@
-insert into public.shipping_zones (code, name) values
-('domestic', 'Domestic'),
+INSERT INTO public.shipping_zones (code, name) VALUES
+('domestic', 'Seller Domestic Country'),
 ('sea', 'Southeast Asia'),
 ('asia', 'Asia'),
 ('europe', 'Europe'),
 ('north_america', 'North America'),
+('south_america', 'South America'),
+('africa', 'Africa'),
+('oceania', 'Oceania'),
 ('rest_of_world', 'Rest of World')
-on conflict (code) do nothing;
+ON CONFLICT (code) DO NOTHING;
