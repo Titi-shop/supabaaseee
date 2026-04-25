@@ -1,80 +1,155 @@
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'BN','KH','ID','LA','MY','MM','PH','SG','TH','TL'
-]) AS c(country_code)
-WHERE sz.code='sea'
-ON CONFLICT DO NOTHING;
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'AF','AM','AZ','BH','BD','BT','CN','CY','GE','HK','IN','IR','IQ','IL',
-'JP','JO','KZ','KW','KG','LB','MO','MV','MN','NP','KP','OM','PK','PS',
-'QA','SA','KR','LK','SY','TW','TJ','TR','TM','AE','UZ','YE'
-]) AS c(country_code)
-WHERE sz.code='asia'
-ON CONFLICT DO NOTHING;
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'AL','AD','AT','BY','BE','BA','BG','HR','CY','CZ','DK','EE','FI','FR',
-'DE','GI','GR','HU','IS','IE','IT','XK','LV','LI','LT','LU','MT','MD',
-'MC','ME','NL','MK','NO','PL','PT','RO','RU','SM','RS','SK','SI','ES',
-'SE','CH','UA','GB','VA'
-]) AS c(country_code)
-WHERE sz.code='europe'
-ON CONFLICT DO NOTHING;
+-- =========================================================
+-- SHIPPING SYSTEM FULL UPGRADE
+-- =========================================================
 
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'CA','US','MX','GL','BM'
-]) AS c(country_code)
-WHERE sz.code='north_america'
-ON CONFLICT DO NOTHING;
+-- enable uuid
+create extension if not exists pgcrypto;
 
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'AR','BO','BR','CL','CO','EC','FK','GF','GY','PY','PE','SR','UY','VE'
-]) AS c(country_code)
-WHERE sz.code='south_america'
-ON CONFLICT DO NOTHING;
+-- =========================================================
+-- 1. SHIPPING ZONES
+-- =========================================================
+create table if not exists public.shipping_zones (
+  id uuid primary key default gen_random_uuid(),
+  code text not null unique,
+  name text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'DZ','AO','BJ','BW','BF','BI','CM','CV','CF','TD','KM','CD','CG','CI',
-'DJ','EG','GQ','ER','SZ','ET','GA','GM','GH','GN','GW','KE','LS','LR',
-'LY','MG','MW','ML','MR','MU','YT','MA','MZ','NA','NE','NG','RE','RW',
-'SH','ST','SN','SC','SL','SO','ZA','SS','SD','TZ','TG','TN','UG','EH',
-'ZM','ZW'
-]) AS c(country_code)
-WHERE sz.code='africa'
-ON CONFLICT DO NOTHING;
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'AU','NZ','FJ','PF','GU','KI','MH','FM','NR','NC','PG','WS','SB','TO',
-'TV','VU'
-]) AS c(country_code)
-WHERE sz.code='oceania'
-ON CONFLICT DO NOTHING;
+insert into public.shipping_zones (code, name) values
+('domestic', 'Domestic'),
+('sea', 'Southeast Asia'),
+('asia', 'Asia'),
+('europe', 'Europe'),
+('north_america', 'North America'),
+('rest_of_world', 'Rest of World')
+on conflict (code) do nothing;
 
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT sz.id, c.country_code
-FROM shipping_zones sz,
-UNNEST(ARRAY[
-'AI','AG','AW','BS','BB','BZ','BQ','VG','KY','CR','CU','CW','DM','DO',
-'SV','GD','GP','GT','HT','HN','JM','MQ','MS','NI','PA','PR','BL','KN',
-'LC','MF','PM','VC','SX','TT','TC','VI'
-]) AS c(country_code)
-WHERE sz.code='rest_of_world'
-ON CONFLICT DO NOTHING;
+-- =========================================================
+-- 2. SHIPPING ZONE COUNTRIES
+-- =========================================================
+create table if not exists public.shipping_zone_countries (
+  id uuid primary key default gen_random_uuid(),
+
+  zone_id uuid not null
+    references public.shipping_zones(id)
+    on delete cascade,
+
+  country_code text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  unique(zone_id, country_code)
+);
+
+create index if not exists idx_zone_country_code
+on public.shipping_zone_countries(country_code);
+
+-- =========================================================
+-- CLEAN OLD COUNTRY MAP
+-- =========================================================
+delete from public.shipping_zone_countries;
+
+-- =========================================================
+-- 3. SEA (SOUTHEAST ASIA)
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'TH','SG','MY','ID','PH','BN','KH','LA','MM','TL'
+]) as c(country_code)
+where z.code='sea';
+
+-- =========================================================
+-- 4. ASIA
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'JP','KR','CN','HK','TW','IN','PK','BD','LK','NP','BT','MV',
+'AE','SA','QA','KW','OM','BH','JO','IL','TR','IR','IQ','KZ',
+'UZ','TM','KG','TJ','MN','AF','YE','SY','LB'
+]) as c(country_code)
+where z.code='asia';
+
+-- =========================================================
+-- 5. EUROPE
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'FR','DE','IT','ES','NL','BE','CH','AT','SE','NO','DK','FI',
+'PL','CZ','HU','RO','BG','SK','SI','HR','PT','IE','GR','UA',
+'GB','RU','RS','BA','ME','MK','AL','EE','LV','LT','LU','IS'
+]) as c(country_code)
+where z.code='europe';
+
+-- =========================================================
+-- 6. NORTH AMERICA
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'US','CA','MX','GL'
+]) as c(country_code)
+where z.code='north_america';
+
+-- =========================================================
+-- 7. REST OF WORLD
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'AU','NZ',
+'BR','AR','CL','CO','PE','VE','UY','PY','BO','EC','GY','SR',
+'ZA','EG','NG','KE','MA','DZ','TN','GH','UG','TZ','CM','CI',
+'ET','SN','ZM','ZW','BW','NA','MZ','AO','SD',
+'FJ','PG','WS','TO','VU','NC'
+]) as c(country_code)
+where z.code='rest_of_world';
+
+-- =========================================================
+-- 8. SHIPPING RATES TABLE
+-- =========================================================
+create table if not exists public.shipping_rates (
+  id uuid primary key default gen_random_uuid(),
+
+  product_id uuid not null
+    references public.products(id)
+    on delete cascade,
+
+  zone_id uuid not null
+    references public.shipping_zones(id)
+    on delete cascade,
+
+  price numeric(18,5) not null check(price >= 0),
+
+  currency text not null default 'PI'
+    check(currency='PI'),
+
+  -- 🔥 domestic custom country flexible
+  domestic_country_code text null,
+
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+
+  unique(product_id, zone_id)
+);
+
+create index if not exists idx_shipping_rates_zone
+on public.shipping_rates(zone_id);
+
+create index if not exists idx_shipping_rates_product
+on public.shipping_rates(product_id);
+
+create index if not exists idx_shipping_rates_domestic_country
+on public.shipping_rates(domestic_country_code);
+
+-- =========================================================
+-- DONE
+-- =========================================================
