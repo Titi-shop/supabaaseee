@@ -1,61 +1,80 @@
--- =========================================
--- DOMESTIC
--- =========================================
-INSERT INTO shipping_zone_countries (zone_id, country_code)
-SELECT id, 'VN'
-FROM shipping_zones
-WHERE code = 'domestic';
-
--- =========================================
--- ASIA
--- =========================================
 INSERT INTO shipping_zone_countries (zone_id, country_code)
 SELECT sz.id, c.country_code
 FROM shipping_zones sz,
 UNNEST(ARRAY[
-  'JP','KR','CN','HK','TW',
-  'TH','SG','MY','ID','PH','VN',
-  'IN','PK','BD','LK',
-  'AE','SA','QA','KW','OM','BH',
-  'IL','TR'
+'BN','KH','ID','LA','MY','MM','PH','SG','TH','TL'
 ]) AS c(country_code)
-WHERE sz.code = 'asia';
-
--- =========================================
--- EUROPE
--- =========================================
+WHERE sz.code='sea'
+ON CONFLICT DO NOTHING;
 INSERT INTO shipping_zone_countries (zone_id, country_code)
 SELECT sz.id, c.country_code
 FROM shipping_zones sz,
 UNNEST(ARRAY[
-  'FR','DE','IT','ES','NL','BE','CH','AT',
-  'SE','NO','DK','FI',
-  'PL','CZ','HU','RO','BG','SK','SI','HR',
-  'PT','IE','GR','UA'
+'AF','AM','AZ','BH','BD','BT','CN','CY','GE','HK','IN','IR','IQ','IL',
+'JP','JO','KZ','KW','KG','LB','MO','MV','MN','NP','KP','OM','PK','PS',
+'QA','SA','KR','LK','SY','TW','TJ','TR','TM','AE','UZ','YE'
 ]) AS c(country_code)
-WHERE sz.code = 'europe';
-
--- =========================================
--- NORTH AMERICA
--- =========================================
+WHERE sz.code='asia'
+ON CONFLICT DO NOTHING;
 INSERT INTO shipping_zone_countries (zone_id, country_code)
 SELECT sz.id, c.country_code
 FROM shipping_zones sz,
 UNNEST(ARRAY[
-  'US','CA','MX'
+'AL','AD','AT','BY','BE','BA','BG','HR','CY','CZ','DK','EE','FI','FR',
+'DE','GI','GR','HU','IS','IE','IT','XK','LV','LI','LT','LU','MT','MD',
+'MC','ME','NL','MK','NO','PL','PT','RO','RU','SM','RS','SK','SI','ES',
+'SE','CH','UA','GB','VA'
 ]) AS c(country_code)
-WHERE sz.code = 'north_america';
+WHERE sz.code='europe'
+ON CONFLICT DO NOTHING;
 
--- =========================================
--- REST OF WORLD
--- =========================================
 INSERT INTO shipping_zone_countries (zone_id, country_code)
 SELECT sz.id, c.country_code
 FROM shipping_zones sz,
 UNNEST(ARRAY[
-  'AU','NZ',
-  'BR','AR','CL','CO','PE','VE',
-  'ZA','EG','NG','KE','MA','DZ','TN',
-  'GH','UG','TZ'
+'CA','US','MX','GL','BM'
 ]) AS c(country_code)
-WHERE sz.code = 'rest_of_world';
+WHERE sz.code='north_america'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO shipping_zone_countries (zone_id, country_code)
+SELECT sz.id, c.country_code
+FROM shipping_zones sz,
+UNNEST(ARRAY[
+'AR','BO','BR','CL','CO','EC','FK','GF','GY','PY','PE','SR','UY','VE'
+]) AS c(country_code)
+WHERE sz.code='south_america'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO shipping_zone_countries (zone_id, country_code)
+SELECT sz.id, c.country_code
+FROM shipping_zones sz,
+UNNEST(ARRAY[
+'DZ','AO','BJ','BW','BF','BI','CM','CV','CF','TD','KM','CD','CG','CI',
+'DJ','EG','GQ','ER','SZ','ET','GA','GM','GH','GN','GW','KE','LS','LR',
+'LY','MG','MW','ML','MR','MU','YT','MA','MZ','NA','NE','NG','RE','RW',
+'SH','ST','SN','SC','SL','SO','ZA','SS','SD','TZ','TG','TN','UG','EH',
+'ZM','ZW'
+]) AS c(country_code)
+WHERE sz.code='africa'
+ON CONFLICT DO NOTHING;
+INSERT INTO shipping_zone_countries (zone_id, country_code)
+SELECT sz.id, c.country_code
+FROM shipping_zones sz,
+UNNEST(ARRAY[
+'AU','NZ','FJ','PF','GU','KI','MH','FM','NR','NC','PG','WS','SB','TO',
+'TV','VU'
+]) AS c(country_code)
+WHERE sz.code='oceania'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO shipping_zone_countries (zone_id, country_code)
+SELECT sz.id, c.country_code
+FROM shipping_zones sz,
+UNNEST(ARRAY[
+'AI','AG','AW','BS','BB','BZ','BQ','VG','KY','CR','CU','CW','DM','DO',
+'SV','GD','GP','GT','HT','HN','JM','MQ','MS','NI','PA','PR','BL','KN',
+'LC','MF','PM','VC','SX','TT','TC','VI'
+]) AS c(country_code)
+WHERE sz.code='rest_of_world'
+ON CONFLICT DO NOTHING;
