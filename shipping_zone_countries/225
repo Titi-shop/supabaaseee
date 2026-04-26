@@ -1,0 +1,125 @@
+-- =========================================================
+-- SHIPPING ZONE COUNTRIES COMPLETE WORLD MAP
+-- KEEP EXISTING TABLE STRUCTURE
+-- =========================================================
+
+delete from public.shipping_zone_countries;
+
+-- =========================================================
+-- DOMESTIC
+-- domestic không insert country cố định
+-- vì dùng shipping_rates.domestic_country_code riêng từng seller
+-- =========================================================
+
+
+
+-- =========================================================
+-- SEA (SOUTHEAST ASIA)
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'VN','TH','SG','MY','ID','PH','BN','KH','LA','MM','TL'
+]) as c(country_code)
+where z.code='sea';
+
+
+
+-- =========================================================
+-- ASIA (EAST + SOUTH + WEST + CENTRAL ASIA + MIDDLE EAST)
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'JP','KR','CN','HK','MO','TW','MN',
+
+'IN','PK','BD','LK','NP','BT','MV',
+
+'AE','SA','QA','KW','OM','BH',
+'JO','IL','PS','TR','IR','IQ',
+'SY','LB','YE',
+
+'KZ','UZ','TM','KG','TJ',
+
+'AF','AZ','AM','GE'
+]) as c(country_code)
+where z.code='asia';
+
+
+
+-- =========================================================
+-- EUROPE (FULL EUROPE)
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'FR','DE','IT','ES','NL','BE','CH','AT',
+'SE','NO','DK','FI','IS',
+
+'PL','CZ','HU','RO','BG','SK','SI','HR',
+'PT','IE','GR','UA','GB',
+
+'RU','BY','MD',
+
+'RS','BA','ME','MK','AL','XK',
+
+'EE','LV','LT','LU',
+
+'AD','MC','SM','VA','LI','MT','CY'
+]) as c(country_code)
+where z.code='europe';
+
+
+
+-- =========================================================
+-- NORTH AMERICA (USA + CANADA + MEXICO + CENTRAL + CARIBBEAN)
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+'US','CA','MX','GL',
+
+'GT','BZ','SV','HN','NI','CR','PA',
+
+'CU','DO','HT','JM','BS','BB','TT','GD','LC','VC','AG','DM','KN'
+]) as c(country_code)
+where z.code='north_america';
+
+
+
+-- =========================================================
+-- REST OF WORLD
+-- SOUTH AMERICA + AFRICA + OCEANIA + REMAINING ISLANDS
+-- =========================================================
+insert into public.shipping_zone_countries (zone_id, country_code)
+select z.id, c.country_code
+from public.shipping_zones z,
+unnest(array[
+
+-- Oceania
+'AU','NZ','FJ','PG','WS','TO','VU','NC','SB','KI','TV','NR','FM','MH','PW',
+
+-- South America
+'BR','AR','CL','CO','PE','VE','UY','PY','BO','EC','GY','SR','GF',
+
+-- Africa North
+'ZA','EG','NG','KE','MA','DZ','TN','LY','SD','SS',
+
+-- Africa West
+'GH','CI','SN','ML','BF','NE','TG','BJ','GN','GW','LR','SL','GM','CV','MR',
+
+-- Africa East
+'UG','TZ','RW','BI','ET','SO','DJ','ER',
+
+-- Africa Central
+'CM','CF','TD','GQ','GA','CG','CD','ST',
+
+-- Africa South
+'ZM','ZW','BW','NA','MZ','AO','MW','LS','SZ','MG','MU','SC','KM'
+
+]) as c(country_code)
+where z.code='rest_of_world';
