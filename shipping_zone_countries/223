@@ -1,2 +1,0 @@
-ALTER TABLE shipping_zone_countries
-ADD CONSTRAINT unique_zone_country UNIQUE (zone_id, country_code);
