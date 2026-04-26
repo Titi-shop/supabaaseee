@@ -25,4 +25,5 @@ CREATE TABLE IF NOT EXISTS public.shipping_rates (
   -- ❗ mỗi product chỉ có 1 giá / zone
   CONSTRAINT shipping_rates_product_zone_unique
   UNIQUE (product_id, zone_id)
+ADD COLUMN domestic_country_code text null;
 );
