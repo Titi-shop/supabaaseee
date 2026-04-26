@@ -1,6 +1,0 @@
-select price
-from public.shipping_rates
-where zone_id = $1
-  and (seller_id = $2 or seller_id is null)
-order by seller_id desc
-limit 1;
