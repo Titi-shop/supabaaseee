@@ -1,5 +1,5 @@
 -- =========================================================
--- SHIPPING ZONE COUNTRIES COMPLETE WORLD MAP
+-- GLOBAL SHIPPING COUNTRY MAP (PRODUCTION READY)
 -- KEEP EXISTING TABLE STRUCTURE
 -- =========================================================
 
@@ -7,14 +7,14 @@ delete from public.shipping_zone_countries;
 
 -- =========================================================
 -- DOMESTIC
--- domestic không insert country cố định
--- vì dùng shipping_rates.domestic_country_code riêng từng seller
+-- domestic không map ở đây
+-- dùng shipping_rates.domestic_country_code riêng
 -- =========================================================
 
 
 
 -- =========================================================
--- SEA (SOUTHEAST ASIA)
+-- SEA (SOUTHEAST ASIA / ASEAN)
 -- =========================================================
 insert into public.shipping_zone_countries (zone_id, country_code)
 select z.id, c.country_code
@@ -33,7 +33,7 @@ insert into public.shipping_zone_countries (zone_id, country_code)
 select z.id, c.country_code
 from public.shipping_zones z,
 unnest(array[
-'JP','KR','CN','HK','MO','TW','MN',
+'JP','KR','KP','CN','HK','MO','TW','MN',
 
 'IN','PK','BD','LK','NP','BT','MV',
 
@@ -85,41 +85,45 @@ unnest(array[
 
 'GT','BZ','SV','HN','NI','CR','PA',
 
-'CU','DO','HT','JM','BS','BB','TT','GD','LC','VC','AG','DM','KN'
+'CU','DO','HT','JM','BS','BB','TT',
+'GD','LC','VC','AG','DM','KN','PR'
 ]) as c(country_code)
 where z.code='north_america';
 
 
 
 -- =========================================================
--- REST OF WORLD
--- SOUTH AMERICA + AFRICA + OCEANIA + REMAINING ISLANDS
+-- REST OF WORLD (SOUTH AMERICA + AFRICA + OCEANIA + ISLANDS)
 -- =========================================================
 insert into public.shipping_zone_countries (zone_id, country_code)
 select z.id, c.country_code
 from public.shipping_zones z,
 unnest(array[
 
--- Oceania
-'AU','NZ','FJ','PG','WS','TO','VU','NC','SB','KI','TV','NR','FM','MH','PW',
+-- OCEANIA
+'AU','NZ','FJ','PG','WS','TO','VU','NC',
+'SB','KI','TV','NR','FM','MH','PW','GU','PF','CK','AS',
 
--- South America
-'BR','AR','CL','CO','PE','VE','UY','PY','BO','EC','GY','SR','GF',
+-- SOUTH AMERICA
+'BR','AR','CL','CO','PE','VE','UY','PY','BO','EC',
+'GY','SR','GF','FK',
 
--- Africa North
+-- AFRICA NORTH
 'ZA','EG','NG','KE','MA','DZ','TN','LY','SD','SS',
 
--- Africa West
-'GH','CI','SN','ML','BF','NE','TG','BJ','GN','GW','LR','SL','GM','CV','MR',
+-- AFRICA WEST
+'GH','CI','SN','ML','BF','NE','TG','BJ',
+'GN','GW','LR','SL','GM','CV','MR',
 
--- Africa East
+-- AFRICA EAST
 'UG','TZ','RW','BI','ET','SO','DJ','ER',
 
--- Africa Central
+-- AFRICA CENTRAL
 'CM','CF','TD','GQ','GA','CG','CD','ST',
 
--- Africa South
-'ZM','ZW','BW','NA','MZ','AO','MW','LS','SZ','MG','MU','SC','KM'
+-- AFRICA SOUTH
+'ZM','ZW','BW','NA','MZ','AO','MW','LS','SZ',
+'MG','MU','SC','KM','RE','YT'
 
 ]) as c(country_code)
 where z.code='rest_of_world';
