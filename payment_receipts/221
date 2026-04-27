@@ -1,0 +1,5 @@
+CREATE INDEX idx_payment_receipts_payment_intent
+ON payment_receipts(payment_intent_id);
+
+CREATE INDEX idx_payment_receipts_txid
+ON payment_receipts(txid);
