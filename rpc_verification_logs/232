@@ -1,0 +1,5 @@
+CREATE INDEX idx_rpc_verification_logs_txid
+ON rpc_verification_logs(txid);
+
+CREATE INDEX idx_rpc_verification_logs_payment_intent
+ON rpc_verification_logs(payment_intent_id);
