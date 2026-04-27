@@ -1,0 +1,8 @@
+CREATE INDEX IF NOT EXISTS idx_wallet_transactions_user_id
+ON wallet_transactions(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_wallet_transactions_reference_id
+ON wallet_transactions(reference_id);
+
+CREATE INDEX IF NOT EXISTS idx_wallet_transactions_idempotency_key
+ON wallet_transactions(idempotency_key);
