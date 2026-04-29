@@ -1,7 +1,9 @@
 CREATE TABLE payment_intents (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  /* ================= IDENTITY ================= */
+  /* =====================================================
+     IDENTITY SNAPSHOT
+  ===================================================== */
 
   buyer_id uuid NOT NULL
     REFERENCES users(id)
@@ -22,52 +24,84 @@ CREATE TABLE payment_intents (
   quantity integer NOT NULL
     CHECK (quantity > 0 AND quantity <= 100),
 
-  /* ================= PRICE SNAPSHOT ================= */
+  /* =====================================================
+     PRICE SNAPSHOT
+  ===================================================== */
 
-  unit_price numeric NOT NULL CHECK (unit_price >= 0),
-  subtotal numeric NOT NULL CHECK (subtotal >= 0),
-  discount numeric NOT NULL DEFAULT 0 CHECK (discount >= 0),
-  shipping_fee numeric NOT NULL CHECK (shipping_fee >= 0),
-  total_amount numeric NOT NULL CHECK (total_amount >= 0),
+  unit_price numeric(20,7) NOT NULL
+    CHECK (unit_price >= 0),
+
+  subtotal numeric(20,7) NOT NULL
+    CHECK (subtotal >= 0),
+
+  discount numeric(20,7) NOT NULL DEFAULT 0
+    CHECK (discount >= 0),
+
+  shipping_fee numeric(20,7) NOT NULL
+    CHECK (shipping_fee >= 0),
+
+  total_amount numeric(20,7) NOT NULL
+    CHECK (total_amount >= 0),
 
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
 
-  /* ================= SHIPPING SNAPSHOT ================= */
+  /* =====================================================
+     SHIPPING SNAPSHOT
+  ===================================================== */
 
   shipping_snapshot jsonb NOT NULL,
 
   country text NOT NULL,
   zone text NOT NULL,
 
-  /* ================= PI / BLOCKCHAIN ================= */
+  /* =====================================================
+     PI PAYMENT / VERIFY SNAPSHOT
+  ===================================================== */
 
   pi_payment_id text UNIQUE,
+
+  pi_user_uid text,
+
+  pi_verified_amount numeric(20,7),
+
+  pi_payment_payload jsonb,
+
+  /* =====================================================
+     BLOCKCHAIN SNAPSHOT
+  ===================================================== */
+
   txid text UNIQUE,
 
   merchant_wallet text NOT NULL,
 
   nonce text NOT NULL UNIQUE,
 
-  /* ================= STATUS ================= */
+  /* =====================================================
+     STATUS
+  ===================================================== */
 
   status text NOT NULL DEFAULT 'created'
     CHECK (status IN (
-      'created',
-      'wallet_opened',
-      'submitted',
-      'verifying',
-      'paid',
+      'created',        -- intent created
+      'wallet_opened',  -- Pi approve done
+      'submitted',      -- wallet user signed
+      'verifying',      -- waiting reconcile
+      'paid',           -- fully reconciled
       'failed',
       'expired'
     )),
 
-  expires_at timestamptz NOT NULL DEFAULT (now() + interval '30 minutes'),
+  expires_at timestamptz NOT NULL
+    DEFAULT (now() + interval '30 minutes'),
 
   paid_at timestamptz,
+
   failed_reason text,
 
-  /* ================= TIME ================= */
+  /* =====================================================
+     TIME
+  ===================================================== */
 
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
