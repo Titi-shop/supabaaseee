@@ -9,7 +9,11 @@ CREATE TABLE rpc_verification_logs (
 
   verified boolean NOT NULL,
 
+  stage text,                -- 🔥 NEW
   reason text,
+
+  amount numeric,           -- 🔥 NEW
+  receiver text,            -- 🔥 NEW
 
   payload jsonb,
 
