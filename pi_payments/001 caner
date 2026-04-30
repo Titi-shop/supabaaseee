@@ -9,8 +9,8 @@ CREATE TABLE pi_payments (
 
   /* ================= PI CORE ================= */
 
-  pi_payment_id text NOT NULL UNIQUE, -- idempotency chính
-  txid text,                          -- blockchain tx (không unique)
+  pi_payment_id text NOT NULL, -- chỉ 1 unique index bên dưới
+  txid text,
 
   /* ================= MONEY ================= */
 
@@ -21,20 +21,13 @@ CREATE TABLE pi_payments (
   /* ================= STATUS ================= */
 
   status text NOT NULL DEFAULT 'pending'
-    CHECK (status IN (
-      'pending',     -- vừa tạo
-      'verified',    -- đã verify Pi
-      'completed',   -- đã tạo order
-      'failed'       -- lỗi
-    )),
+    CHECK (status IN ('pending', 'verified', 'completed', 'failed')),
 
   /* ================= SECURITY ================= */
 
-  -- snapshot để chống sửa giá
-  expected_amount numeric,  -- giá server tính
-  verified_amount numeric,  -- giá từ Pi
+  expected_amount numeric,
+  verified_amount numeric,
 
-  -- chống replay / double call
   idempotency_key text UNIQUE,
 
   /* ================= CONTEXT ================= */
@@ -42,27 +35,20 @@ CREATE TABLE pi_payments (
   country text,
   zone text,
 
-  /* ================= ORDER LINK ================= */
+  /* ================= ORDER ================= */
 
   order_id uuid
     REFERENCES orders(id)
     ON DELETE SET NULL,
 
-  /* ================= RAW DATA ================= */
+  /* ================= RAW ================= */
 
-  raw jsonb, -- full response từ Pi (debug + fraud)
-
-  /* ================= METADATA ================= */
-
+  raw jsonb,
   note text,
 
   /* ================= TIME ================= */
 
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  completed_at timestamptz,
-
-  /* ================= INDEX ================= */
-
-  CONSTRAINT idx_pi_payment_user UNIQUE (user_id, pi_payment_id)
+  completed_at timestamptz
 );
