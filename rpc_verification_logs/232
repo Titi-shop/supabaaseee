@@ -1,5 +1,8 @@
-CREATE INDEX idx_rpc_verification_logs_txid
-ON rpc_verification_logs(txid);
+CREATE UNIQUE INDEX rpc_verification_logs_dedupe
+ON rpc_verification_logs(payment_intent_id, txid);
 
-CREATE INDEX idx_rpc_verification_logs_payment_intent
+CREATE INDEX idx_rpc_logs_intent
 ON rpc_verification_logs(payment_intent_id);
+
+CREATE INDEX idx_rpc_logs_txid
+ON rpc_verification_logs(txid);
