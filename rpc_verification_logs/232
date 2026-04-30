@@ -1,8 +1,20 @@
-CREATE UNIQUE INDEX rpc_verification_logs_dedupe
-ON rpc_verification_logs(payment_intent_id, txid);
+-- 1. UNIQUE TXID (CRITICAL)
+CREATE UNIQUE INDEX rpc_verification_logs_txid_unique
+ON rpc_verification_logs (txid);
 
-CREATE INDEX idx_rpc_logs_intent
-ON rpc_verification_logs(payment_intent_id);
+-- 2. PAYMENT INTENT LOOKUP
+CREATE INDEX rpc_verification_logs_payment_intent_idx
+ON rpc_verification_logs (payment_intent_id);
 
-CREATE INDEX idx_rpc_logs_txid
-ON rpc_verification_logs(txid);
+-- 3. COMPOSITE FAST LOOKUP
+CREATE INDEX rpc_verification_logs_intent_txid_idx
+ON rpc_verification_logs (payment_intent_id, txid);
+
+-- 4. TIME SERIES LOGS
+CREATE INDEX rpc_verification_logs_created_at_idx
+ON rpc_verification_logs (created_at DESC);
+
+-- 5. FAILED ONLY (OPTIONAL)
+CREATE INDEX rpc_verification_logs_failed_idx
+ON rpc_verification_logs (verified)
+WHERE verified = false;
