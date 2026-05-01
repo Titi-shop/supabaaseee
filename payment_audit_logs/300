@@ -1,0 +1,15 @@
+CREATE TABLE payment_audit_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  payment_intent_id uuid REFERENCES payment_intents(id) ON DELETE CASCADE,
+
+  event_code text NOT NULL,
+  stage text,
+  severity text NOT NULL DEFAULT 'info',
+
+  note text NULL,
+
+  payload jsonb,
+
+  created_at timestamptz NOT NULL DEFAULT now()
+);
