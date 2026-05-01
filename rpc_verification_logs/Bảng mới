@@ -1,0 +1,27 @@
+CREATE TABLE rpc_verification_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  payment_intent_id uuid REFERENCES payment_intents(id) ON DELETE SET NULL,
+
+  txid text NOT NULL UNIQUE,
+
+  verified boolean NOT NULL DEFAULT false,
+
+  stage text,
+  reason text,
+
+  amount numeric(20,7) NULL,
+  sender text NULL,
+  receiver text NULL,
+
+  ledger bigint NULL,
+  tx_status text NULL,
+
+  chain_reference text NULL,
+
+  verify_mode text NOT NULL DEFAULT 'raw_tx',
+
+  payload jsonb,
+
+  created_at timestamptz NOT NULL DEFAULT now()
+);
