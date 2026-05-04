@@ -1,52 +1,113 @@
 CREATE TABLE payment_receipts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
+  /* =====================================================
+     CORE LINK
+  ===================================================== */
+
   payment_intent_id uuid NOT NULL
     REFERENCES payment_intents(id)
     ON DELETE CASCADE,
 
-  pi_payment_id text NOT NULL,
-  txid text NOT NULL,
+  user_id uuid
+    REFERENCES users(id)
+    ON DELETE SET NULL,
 
+  order_id uuid
+    REFERENCES orders(id)
+    ON DELETE SET NULL,
+
+  escrow_id uuid
+    REFERENCES escrow_entries(id)
+    ON DELETE SET NULL,
+
+  /* =====================================================
+     PI PAYMENT IDENTITY
+  ===================================================== */
+
+  pi_payment_id text NOT NULL UNIQUE,
   pi_uid text,
-  verified_amount numeric(20,7) NOT NULL,
-  expected_amount numeric(20,7),
+  txid text,
 
-  receiver_wallet text NOT NULL,
+  /* =====================================================
+     VERIFIED MONEY
+  ===================================================== */
 
-  verification_status text NOT NULL DEFAULT 'verified'
-    CHECK (verification_status IN (
-      'verified',
-      'mismatch',
-      'duplicate',
-      'manual_review'
-    )),
+  expected_amount numeric(20,8) NOT NULL,
+  verified_amount numeric(20,8) NOT NULL,
 
-  verify_source text NOT NULL DEFAULT 'FINALIZE_V4',
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
 
-  reconcile_status text NOT NULL DEFAULT 'matched'
-    CHECK (reconcile_status IN (
-      'matched',
-      'mismatch',
-      'pending_manual'
-    )),
+  /* =====================================================
+     WALLET TRACE
+  ===================================================== */
 
-  duplicate_flag boolean NOT NULL DEFAULT false,
-  manual_flag boolean NOT NULL DEFAULT false,
+  sender_wallet text,
+  receiver_wallet text,
 
-  mismatch_reason text,
+  /* =====================================================
+     VERIFY STATE
+  ===================================================== */
 
-  verify_hash text,
+  verification_status text NOT NULL DEFAULT 'pi_verified'
+    CHECK (
+      verification_status IN (
+        'pi_verified',
+        'rpc_verified',
+        'completed',
+        'manual_review',
+        'failed'
+      )
+    ),
+
+  verify_source text NOT NULL DEFAULT 'PI_SERVER'
+    CHECK (
+      verify_source IN (
+        'PI_SERVER',
+        'RPC_NODE',
+        'DUAL_AUDIT',
+        'MANUAL'
+      )
+    ),
+
+  /* =====================================================
+     RPC CHAIN AUDIT
+  ===================================================== */
+
+  rpc_confirmed boolean NOT NULL DEFAULT false,
+  rpc_ledger bigint,
+  chain_reference text,
+  tx_status text,
+
+  /* =====================================================
+     RAW FORENSIC PAYLOADS
+  ===================================================== */
 
   pi_payload jsonb,
   rpc_payload jsonb,
+  merged_payload jsonb,
 
-  verified_at timestamptz NOT NULL DEFAULT now(),
-  created_at timestamptz NOT NULL DEFAULT now()
+  /* =====================================================
+     SECURITY / HASH TRACE
+  ===================================================== */
+
+  forensic_hash text,
+  idempotency_key text,
+
+  /* =====================================================
+     REVIEW
+  ===================================================== */
+
+  failure_reason text,
+  manual_note text,
+
+  /* =====================================================
+     TIME
+  ===================================================== */
+
+  verified_at timestamptz,
+  completed_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
-
-CREATE UNIQUE INDEX uq_payment_receipts_pi_payment_id
-ON payment_receipts(pi_payment_id);
-
-CREATE UNIQUE INDEX uq_payment_receipts_txid
-ON payment_receipts(txid);
