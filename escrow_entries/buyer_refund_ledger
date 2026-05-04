@@ -1,0 +1,14 @@
+create table buyer_refund_ledger (
+  id uuid primary key default gen_random_uuid(),
+
+  escrow_id uuid not null,
+  buyer_id uuid not null,
+
+  amount numeric(18, 8) not null,
+
+  reason text,
+  status text default 'PENDING',
+  -- PENDING | REFUNDED | FAILED
+
+  created_at timestamp default now()
+);
