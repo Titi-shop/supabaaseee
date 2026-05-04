@@ -1,14 +1,25 @@
-create table buyer_refund_ledger (
-  id uuid primary key default gen_random_uuid(),
+CREATE TABLE buyer_refund_ledger (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  escrow_id uuid not null,
-  buyer_id uuid not null,
+  escrow_id uuid NOT NULL REFERENCES escrow_entries(id) ON DELETE CASCADE,
+  buyer_id uuid NOT NULL,
 
-  amount numeric(18, 8) not null,
+  amount numeric(18,8) NOT NULL,
 
   reason text,
-  status text default 'PENDING',
+  status text NOT NULL DEFAULT 'PENDING',
   -- PENDING | REFUNDED | FAILED
 
-  created_at timestamp default now()
+  refund_txid text,
+  pi_payment_id text,
+
+  refund_source text NOT NULL DEFAULT 'SYSTEM',
+  -- SYSTEM | ADMIN | DISPUTE
+
+  approved_by uuid,
+
+  processed_at timestamptz,
+  fail_reason text,
+
+  created_at timestamptz NOT NULL DEFAULT now()
 );
