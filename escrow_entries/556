@@ -1,8 +1,15 @@
-CREATE INDEX idx_escrow_entries_seller_id ON escrow_entries(seller_id);
-CREATE INDEX idx_escrow_entries_status ON escrow_entries(status);
+CREATE INDEX idx_escrow_buyer_id ON escrow_entries(buyer_id);
+CREATE INDEX idx_escrow_seller_id ON escrow_entries(seller_id);
+CREATE INDEX idx_escrow_txid ON escrow_entries(txid);
+CREATE INDEX idx_escrow_pi_payment_id ON escrow_entries(pi_payment_id);
+
+CREATE INDEX idx_refund_escrow_id ON buyer_refund_ledger(escrow_id);
+
+CREATE INDEX idx_seller_credit_seller_id ON seller_credits(seller_id);
+CREATE INDEX idx_seller_credit_status ON seller_credits(status);
+
+CREATE INDEX idx_withdraw_seller_id ON seller_withdrawals(seller_id);
+CREATE INDEX idx_withdraw_status ON seller_withdrawals(status);
 
 CREATE INDEX idx_settlement_events_escrow_id ON settlement_events(escrow_id);
-CREATE INDEX idx_settlement_events_event_type ON settlement_events(event_type);
-
-CREATE INDEX idx_seller_credits_seller_id ON seller_credits(seller_id);
-CREATE INDEX idx_seller_credits_status ON seller_credits(status);
+CREATE INDEX idx_wallet_journal_owner_id ON wallet_journal(owner_id);
