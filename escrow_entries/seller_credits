@@ -1,24 +1,131 @@
 CREATE TABLE seller_credits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  seller_id uuid NOT NULL,
-  escrow_id uuid NOT NULL UNIQUE REFERENCES escrow_entries(id) ON DELETE CASCADE,
+  /* =====================================================
+     OWNERSHIP
+  ===================================================== */
 
-  amount numeric(18,8) NOT NULL,
-  withdrawn_amount numeric(18,8) NOT NULL DEFAULT 0,
-  available_amount numeric(18,8) NOT NULL,
+  seller_id uuid NOT NULL
+    REFERENCES users(id)
+    ON DELETE RESTRICT,
 
-  currency text NOT NULL DEFAULT 'PI',
+  escrow_id uuid NOT NULL UNIQUE
+    REFERENCES escrow_entries(id)
+    ON DELETE CASCADE,
 
-  status text NOT NULL DEFAULT 'AVAILABLE',
-  -- AVAILABLE | PARTIAL_WITHDRAWN | WITHDRAWN | LOCKED | REVERSED
+  payment_intent_id uuid
+    REFERENCES payment_intents(id)
+    ON DELETE SET NULL,
 
-  chain_txid text,
+  order_id uuid
+    REFERENCES orders(id)
+    ON DELETE SET NULL,
+
+  /* =====================================================
+     MONEY SNAPSHOT
+  ===================================================== */
+
+  amount numeric(20,7) NOT NULL
+    CHECK (amount >= 0),
+
+  withdrawn_amount numeric(20,7) NOT NULL DEFAULT 0
+    CHECK (withdrawn_amount >= 0),
+
+  reversed_amount numeric(20,7) NOT NULL DEFAULT 0
+    CHECK (reversed_amount >= 0),
+
+  frozen_amount numeric(20,7) NOT NULL DEFAULT 0
+    CHECK (frozen_amount >= 0),
+
+  available_amount numeric(20,7) NOT NULL
+    CHECK (available_amount >= 0),
+
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* =====================================================
+     CREDIT STATUS MACHINE
+  ===================================================== */
+
+  status text NOT NULL DEFAULT 'AVAILABLE'
+    CHECK (status IN (
+      'AVAILABLE',
+      'PARTIAL_WITHDRAWN',
+      'WITHDRAWN',
+      'LOCKED',
+      'FROZEN',
+      'REVERSED',
+      'MANUAL_REVIEW'
+    )),
+
+  /* =====================================================
+     SOURCE TRACE
+  ===================================================== */
+
   pi_payment_id text,
+  chain_txid text,
 
-  credit_source text NOT NULL DEFAULT 'ORDER_PAYMENT',
+  credit_source text NOT NULL DEFAULT 'ORDER_PAYMENT'
+    CHECK (credit_source IN (
+      'ORDER_PAYMENT',
+      'MANUAL_ADJUST',
+      'REFUND_REVERSAL',
+      'SYSTEM_COMPENSATION'
+    )),
+
+  /* =====================================================
+     VERSION / FORENSIC CONTROL
+  ===================================================== */
+
+  ledger_version integer NOT NULL DEFAULT 1
+    CHECK (ledger_version > 0),
+
+  audit_hash text,
+
+  lock_id uuid,
+  locked_at timestamptz,
+  lock_source text,
+
+  hold_reason text,
+  release_note text,
+  manual_review_reason text,
+
+  /* =====================================================
+     WITHDRAW TRACKING
+  ===================================================== */
+
+  withdraw_count integer NOT NULL DEFAULT 0
+    CHECK (withdraw_count >= 0),
+
+  last_withdraw_at timestamptz,
+
+  /* =====================================================
+     REVERSAL / FREEZE TRACKING
+  ===================================================== */
+
+  frozen_at timestamptz,
+  reversed_at timestamptz,
+
+  /* =====================================================
+     TIME
+  ===================================================== */
 
   released_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE INDEX idx_seller_credits_seller
+ON seller_credits(seller_id);
+
+CREATE INDEX idx_seller_credits_payment_intent
+ON seller_credits(payment_intent_id);
+
+CREATE INDEX idx_seller_credits_order
+ON seller_credits(order_id);
+
+CREATE INDEX idx_seller_credits_status
+ON seller_credits(status);
+
+CREATE INDEX idx_seller_credits_pi_payment
+ON seller_credits(pi_payment_id);
