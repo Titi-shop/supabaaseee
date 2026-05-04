@@ -1,13 +1,24 @@
 CREATE TABLE seller_credits (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
   seller_id uuid NOT NULL,
   escrow_id uuid NOT NULL UNIQUE REFERENCES escrow_entries(id) ON DELETE CASCADE,
 
   amount numeric(18,8) NOT NULL,
+  withdrawn_amount numeric(18,8) NOT NULL DEFAULT 0,
+  available_amount numeric(18,8) NOT NULL,
+
   currency text NOT NULL DEFAULT 'PI',
 
   status text NOT NULL DEFAULT 'AVAILABLE',
+  -- AVAILABLE | PARTIAL_WITHDRAWN | WITHDRAWN | LOCKED | REVERSED
+
+  chain_txid text,
+  pi_payment_id text,
+
+  credit_source text NOT NULL DEFAULT 'ORDER_PAYMENT',
 
   released_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
