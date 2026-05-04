@@ -1,0 +1,11 @@
+CREATE TABLE settlement_events (
+  id uuid PRIMARY KEY,
+  escrow_id uuid NOT NULL REFERENCES escrow_entries(id) ON DELETE CASCADE,
+
+  event_type text NOT NULL,
+  source text NOT NULL,
+  reason text,
+
+  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
