@@ -1,22 +1,125 @@
 CREATE TABLE rpc_verification_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  payment_intent_id uuid REFERENCES payment_intents(id) ON DELETE SET NULL,
+  /* =====================================================
+     RELATION
+  ===================================================== */
 
-  txid text NOT NULL,
+  payment_intent_id uuid
+    REFERENCES payment_intents(id)
+    ON DELETE SET NULL,
+
+  pi_payment_id text,
+
+  /* =====================================================
+     CHAIN CORE
+  ===================================================== */
+
+  txid text NOT NULL UNIQUE,
+
+  chain_reference text,
+  ledger bigint,
+
+  tx_status text,
+  verify_mode text NOT NULL DEFAULT 'raw_tx'
+    CHECK (verify_mode IN (
+      'raw_tx',
+      'tx_lookup',
+      'ledger_scan',
+      'manual_chain_check'
+    )),
+
+  /* =====================================================
+     VERIFY RESULT
+  ===================================================== */
 
   verified boolean NOT NULL DEFAULT false,
 
-  stage text,
+  verify_stage text NOT NULL DEFAULT 'RPC_FETCH'
+    CHECK (verify_stage IN (
+      'RPC_FETCH',
+      'RPC_PARSE',
+      'AMOUNT_CHECK',
+      'RECEIVER_CHECK',
+      'SENDER_CHECK',
+      'CHAIN_CONFIRM',
+      'FINAL_MATCH',
+      'FAILED',
+      'MANUAL_REVIEW'
+    )),
 
-  reason text,
+  verify_reason text,
 
-  amount numeric NULL,
-  receiver text NULL,
+  verify_status text NOT NULL DEFAULT 'success'
+    CHECK (verify_status IN (
+      'success',
+      'mismatch',
+      'duplicate',
+      'chain_failed',
+      'manual_review'
+    )),
+
+  /* =====================================================
+     MONEY / WALLET SNAPSHOT
+  ===================================================== */
+
+  amount numeric(20,7)
+    CHECK (amount >= 0),
+
+  expected_amount numeric(20,7)
+    CHECK (expected_amount >= 0),
+
+  sender text,
+  receiver text,
+  expected_receiver text,
+
+  amount_match boolean,
+  receiver_match boolean,
+  sender_match boolean,
+
+  /* =====================================================
+     DUPLICATE / FRAUD FLAGS
+  ===================================================== */
+
+  duplicate_flag boolean NOT NULL DEFAULT false,
+  fraud_flag boolean NOT NULL DEFAULT false,
+  manual_review_flag boolean NOT NULL DEFAULT false,
+
+  mismatch_reason text,
+  fraud_reason text,
+
+  /* =====================================================
+     IMMUTABLE HASH
+  ===================================================== */
+
+  verification_hash text,
+
+  /* =====================================================
+     RAW PAYLOAD
+  ===================================================== */
 
   payload jsonb,
 
-  created_at timestamptz NOT NULL DEFAULT now(),
+  /* =====================================================
+     TIME TRACE
+  ===================================================== */
 
-  UNIQUE (txid)
+  verified_at timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now()
 );
+
+
+CREATE INDEX idx_rpc_verification_payment_intent
+ON rpc_verification_logs(payment_intent_id);
+
+CREATE INDEX idx_rpc_verification_pi_payment
+ON rpc_verification_logs(pi_payment_id);
+
+CREATE INDEX idx_rpc_verification_verified
+ON rpc_verification_logs(verified);
+
+CREATE INDEX idx_rpc_verification_status
+ON rpc_verification_logs(verify_status);
+
+CREATE INDEX idx_rpc_verification_ledger
+ON rpc_verification_logs(ledger);
