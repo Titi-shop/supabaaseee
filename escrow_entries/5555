@@ -1,5 +1,6 @@
 CREATE TABLE escrow_entries (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
   payment_intent_id uuid NOT NULL UNIQUE,
   order_id uuid NOT NULL UNIQUE,
 
@@ -7,13 +8,25 @@ CREATE TABLE escrow_entries (
   seller_id uuid NOT NULL,
 
   amount numeric(18,8) NOT NULL,
+  released_amount numeric(18,8) NOT NULL DEFAULT 0,
+  refunded_amount numeric(18,8) NOT NULL DEFAULT 0,
+
   currency text NOT NULL DEFAULT 'PI',
 
   status text NOT NULL DEFAULT 'PENDING',
+  -- PENDING | PAID | SETTLED | REFUNDED | PARTIAL_REFUND | FAILED
+
   release_status text NOT NULL DEFAULT 'HOLD',
+  -- HOLD | PARTIAL_RELEASED | RELEASED
 
   txid text,
+  pi_payment_id text,
+
+  escrow_version int NOT NULL DEFAULT 1,
+
+  held_at timestamptz,
   released_at timestamptz,
+
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
