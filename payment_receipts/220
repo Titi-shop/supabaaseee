@@ -5,20 +5,48 @@ CREATE TABLE payment_receipts (
     REFERENCES payment_intents(id)
     ON DELETE CASCADE,
 
-  pi_payment_id text,
-  txid text NOT NULL UNIQUE,
+  pi_payment_id text NOT NULL,
+  txid text NOT NULL,
 
-  verified_amount numeric NOT NULL CHECK (verified_amount >= 0),
+  pi_uid text,
+  verified_amount numeric(20,7) NOT NULL,
+  expected_amount numeric(20,7),
+
   receiver_wallet text NOT NULL,
 
-  verification_status text NOT NULL
+  verification_status text NOT NULL DEFAULT 'verified'
     CHECK (verification_status IN (
       'verified',
-      'failed'
+      'mismatch',
+      'duplicate',
+      'manual_review'
     )),
+
+  verify_source text NOT NULL DEFAULT 'FINALIZE_V4',
+
+  reconcile_status text NOT NULL DEFAULT 'matched'
+    CHECK (reconcile_status IN (
+      'matched',
+      'mismatch',
+      'pending_manual'
+    )),
+
+  duplicate_flag boolean NOT NULL DEFAULT false,
+  manual_flag boolean NOT NULL DEFAULT false,
+
+  mismatch_reason text,
+
+  verify_hash text,
 
   pi_payload jsonb,
   rpc_payload jsonb,
 
+  verified_at timestamptz NOT NULL DEFAULT now(),
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE UNIQUE INDEX uq_payment_receipts_pi_payment_id
+ON payment_receipts(pi_payment_id);
+
+CREATE UNIQUE INDEX uq_payment_receipts_txid
+ON payment_receipts(txid);
