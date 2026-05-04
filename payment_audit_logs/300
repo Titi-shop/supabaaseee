@@ -1,15 +1,53 @@
 CREATE TABLE payment_audit_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  payment_intent_id uuid REFERENCES payment_intents(id) ON DELETE CASCADE,
+  event_index bigint GENERATED ALWAYS AS IDENTITY UNIQUE,
+
+  payment_intent_id uuid NOT NULL
+    REFERENCES payment_intents(id)
+    ON DELETE CASCADE,
+
+  order_id uuid NULL,
+  escrow_id uuid NULL,
+
+  pi_payment_id text NULL,
+  txid text NULL,
 
   event_code text NOT NULL,
-  stage text,
-  severity text NOT NULL DEFAULT 'info',
+  stage text NOT NULL,
+  severity text NOT NULL DEFAULT 'info'
+    CHECK (severity IN ('info','warn','error','critical')),
+
+  actor_type text NOT NULL DEFAULT 'system'
+    CHECK (actor_type IN (
+      'system',
+      'api',
+      'cron',
+      'admin',
+      'pi_api',
+      'rpc',
+      'ledger'
+    )),
+
+  actor_id uuid NULL,
+
+  source text NULL,
+  request_id text NULL,
+
+  old_payment_status text NULL,
+  new_payment_status text NULL,
+
+  old_settlement_state text NULL,
+  new_settlement_state text NULL,
+
+  reconcile_attempt integer NOT NULL DEFAULT 0,
 
   note text NULL,
 
-  payload jsonb,
+  payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+
+  prev_hash text NULL,
+  event_hash text NOT NULL,
 
   created_at timestamptz NOT NULL DEFAULT now()
 );
