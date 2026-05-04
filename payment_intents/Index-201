@@ -1,0 +1,29 @@
+CREATE INDEX idx_payment_intents_buyer_id
+ON payment_intents(buyer_id);
+
+CREATE INDEX idx_payment_intents_seller_id
+ON payment_intents(seller_id);
+
+CREATE INDEX idx_payment_intents_product_id
+ON payment_intents(product_id);
+
+CREATE INDEX idx_payment_intents_status
+ON payment_intents(status);
+
+CREATE INDEX idx_payment_intents_settlement_state
+ON payment_intents(settlement_state);
+
+CREATE INDEX idx_payment_intents_expires_at
+ON payment_intents(expires_at);
+
+CREATE INDEX idx_payment_intents_locked_at
+ON payment_intents(settlement_locked_at);
+
+CREATE INDEX idx_payment_intents_last_reconcile
+ON payment_intents(last_reconcile_at);
+
+CREATE INDEX idx_payment_intents_pi_payment_id
+ON payment_intents(pi_payment_id);
+
+CREATE INDEX idx_payment_intents_txid
+ON payment_intents(txid);
