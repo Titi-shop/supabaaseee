@@ -13,3 +13,18 @@ CREATE INDEX idx_withdraw_status ON seller_withdrawals(status);
 
 CREATE INDEX idx_settlement_events_escrow_id ON settlement_events(escrow_id);
 CREATE INDEX idx_wallet_journal_owner_id ON wallet_journal(owner_id);
+
+
+
+
+ALTER TABLE buyer_refund_ledger
+ADD CONSTRAINT chk_refund_positive CHECK (amount > 0);
+
+ALTER TABLE seller_credits
+ADD CONSTRAINT chk_credit_positive CHECK (amount > 0);
+
+ALTER TABLE seller_withdrawals
+ADD CONSTRAINT chk_withdraw_positive CHECK (amount > 0);
+
+ALTER TABLE wallet_journal
+ADD CONSTRAINT chk_journal_positive CHECK (amount > 0);
