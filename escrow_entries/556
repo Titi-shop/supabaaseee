@@ -1,0 +1,8 @@
+CREATE INDEX idx_escrow_entries_seller_id ON escrow_entries(seller_id);
+CREATE INDEX idx_escrow_entries_status ON escrow_entries(status);
+
+CREATE INDEX idx_settlement_events_escrow_id ON settlement_events(escrow_id);
+CREATE INDEX idx_settlement_events_event_type ON settlement_events(event_type);
+
+CREATE INDEX idx_seller_credits_seller_id ON seller_credits(seller_id);
+CREATE INDEX idx_seller_credits_status ON seller_credits(status);
