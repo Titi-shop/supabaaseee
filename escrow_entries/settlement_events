@@ -1,5 +1,6 @@
 CREATE TABLE settlement_events (
-  id uuid PRIMARY KEY,
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
   escrow_id uuid NOT NULL REFERENCES escrow_entries(id) ON DELETE CASCADE,
 
   event_type text NOT NULL,
@@ -7,5 +8,8 @@ CREATE TABLE settlement_events (
   reason text,
 
   metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+
+  event_hash text,
+
   created_at timestamptz NOT NULL DEFAULT now()
 );
