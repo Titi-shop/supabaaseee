@@ -2,6 +2,14 @@ CREATE TABLE payment_intents (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
   /* =====================================================
+     PUBLIC / INTERNAL KEYS
+  ===================================================== */
+
+  nonce text NOT NULL UNIQUE,
+  idempotency_key text NOT NULL UNIQUE,
+  verify_token text NOT NULL UNIQUE,
+
+  /* =====================================================
      IDENTITY SNAPSHOT
   ===================================================== */
 
@@ -51,20 +59,16 @@ CREATE TABLE payment_intents (
   ===================================================== */
 
   shipping_snapshot jsonb NOT NULL,
-
   country text NOT NULL,
   zone text NOT NULL,
 
   /* =====================================================
-     PI PAYMENT / VERIFY SNAPSHOT
+     PI PAYMENT SNAPSHOT
   ===================================================== */
 
   pi_payment_id text UNIQUE,
-
   pi_user_uid text,
-
   pi_verified_amount numeric(20,7),
-
   pi_payment_payload jsonb,
 
   /* =====================================================
@@ -72,36 +76,68 @@ CREATE TABLE payment_intents (
   ===================================================== */
 
   txid text UNIQUE,
-
   merchant_wallet text NOT NULL,
 
-  nonce text NOT NULL UNIQUE,
-
   /* =====================================================
-     STATUS
+     PAYMENT STATUS (USER JOURNEY)
   ===================================================== */
 
   status text NOT NULL DEFAULT 'created'
     CHECK (status IN (
-      'created',        -- intent created
-      'wallet_opened',  -- Pi approve done
-      'submitted',      -- wallet user signed
-      'verifying',      -- waiting reconcile
-      'paid',           -- fully reconciled
+      'created',
+      'wallet_opened',
+      'submitted',
+      'verifying',
+      'paid',
       'failed',
       'expired'
     )),
+
+  /* =====================================================
+     INTERNAL SETTLEMENT STATUS (BACKEND JOURNEY)
+  ===================================================== */
+
+  settlement_state text NOT NULL DEFAULT 'UNSETTLED'
+    CHECK (settlement_state IN (
+      'UNSETTLED',
+      'PI_VERIFIED',
+      'RPC_AUDITED',
+      'PI_COMPLETED',
+      'ORDER_FINALIZED',
+      'LEDGER_POSTED',
+      'SETTLED',
+      'MANUAL_REVIEW'
+    )),
+
+  /* =====================================================
+     RECONCILE CONTROL
+  ===================================================== */
+
+  reconcile_attempts integer NOT NULL DEFAULT 0
+    CHECK (reconcile_attempts >= 0),
+
+  last_reconcile_at timestamptz,
+
+  settlement_lock_id uuid,
+  settlement_locked_at timestamptz,
+  settlement_lock_source text,
+
+  /* =====================================================
+     FAILURE / REVIEW
+  ===================================================== */
+
+  failed_reason text,
+  manual_review_reason text,
+
+  /* =====================================================
+     TIME CONTROL
+  ===================================================== */
 
   expires_at timestamptz NOT NULL
     DEFAULT (now() + interval '30 minutes'),
 
   paid_at timestamptz,
-
-  failed_reason text,
-
-  /* =====================================================
-     TIME
-  ===================================================== */
+  settled_at timestamptz,
 
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
