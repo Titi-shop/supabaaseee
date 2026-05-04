@@ -1,52 +1,96 @@
 CREATE TABLE pi_payments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  /* ================= USER ================= */
+  /* =====================================================
+     ROOT LINK
+  ===================================================== */
 
-  user_id uuid NOT NULL
-    REFERENCES users(id)
-    ON DELETE RESTRICT,
-
-  /* ================= PI CORE ================= */
-
-  pi_payment_id text NOT NULL, -- chỉ 1 unique index bên dưới
-  txid text,
-
-  /* ================= MONEY ================= */
-
-  amount numeric NOT NULL CHECK (amount >= 0),
-  currency text NOT NULL DEFAULT 'PI'
-    CHECK (currency = 'PI'),
-
-  /* ================= STATUS ================= */
-
-  status text NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending', 'verified', 'completed', 'failed')),
-
-  /* ================= SECURITY ================= */
-
-  expected_amount numeric,
-  verified_amount numeric,
-
-  idempotency_key text UNIQUE,
-
-  /* ================= CONTEXT ================= */
-
-  country text,
-  zone text,
-
-  /* ================= ORDER ================= */
+  payment_intent_id uuid NOT NULL
+    REFERENCES payment_intents(id)
+    ON DELETE CASCADE,
 
   order_id uuid
     REFERENCES orders(id)
     ON DELETE SET NULL,
 
-  /* ================= RAW ================= */
+  user_id uuid NOT NULL
+    REFERENCES users(id)
+    ON DELETE RESTRICT,
 
-  raw jsonb,
+  /* =====================================================
+     PI CORE IDS
+  ===================================================== */
+
+  pi_payment_id text NOT NULL UNIQUE,
+  txid text UNIQUE,
+
+  payment_nonce text,
+  verify_token text,
+
+  receiver_wallet text,
+
+  /* =====================================================
+     MONEY
+  ===================================================== */
+
+  amount numeric(20,7) NOT NULL CHECK (amount >= 0),
+  expected_amount numeric(20,7),
+  verified_amount numeric(20,7),
+
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* =====================================================
+     PIPELINE STATUS
+  ===================================================== */
+
+  status text NOT NULL DEFAULT 'PENDING'
+    CHECK (status IN (
+      'PENDING',
+      'PI_VERIFIED',
+      'RPC_VERIFIED',
+      'FINALIZED',
+      'PI_COMPLETED',
+      'SETTLED',
+      'FAILED',
+      'MANUAL_REVIEW'
+    )),
+
+  reconcile_attempts integer NOT NULL DEFAULT 0
+    CHECK (reconcile_attempts >= 0),
+
+  last_reconcile_at timestamptz,
+
+  processing_lock_id uuid,
+  processing_locked_at timestamptz,
+
+  /* =====================================================
+     PAYLOAD SNAPSHOTS
+  ===================================================== */
+
+  pi_raw_payload jsonb,
+  rpc_raw_payload jsonb,
+  complete_raw_payload jsonb,
+
+  /* =====================================================
+     FAILURE / REVIEW
+  ===================================================== */
+
+  failure_reason text,
+  manual_review_reason text,
   note text,
 
-  /* ================= TIME ================= */
+  /* =====================================================
+     CONTEXT
+  ===================================================== */
+
+  idempotency_key text UNIQUE,
+  country text,
+  zone text,
+
+  /* =====================================================
+     TIME
+  ===================================================== */
 
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
