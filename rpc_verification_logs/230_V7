@@ -2,7 +2,7 @@ CREATE TABLE rpc_verification_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
   /* =====================================================
-     RELATION
+     RELATION (UUID CORE FLOW)
   ===================================================== */
 
   payment_intent_id uuid
@@ -12,7 +12,7 @@ CREATE TABLE rpc_verification_logs (
   pi_payment_id text,
 
   /* =====================================================
-     CHAIN CORE
+     CHAIN CORE IDENTIFIERS
   ===================================================== */
 
   txid text NOT NULL UNIQUE,
@@ -21,6 +21,7 @@ CREATE TABLE rpc_verification_logs (
   ledger bigint,
 
   tx_status text,
+
   verify_mode text NOT NULL DEFAULT 'raw_tx'
     CHECK (verify_mode IN (
       'raw_tx',
@@ -30,7 +31,7 @@ CREATE TABLE rpc_verification_logs (
     )),
 
   /* =====================================================
-     VERIFY RESULT
+     VERIFY STATE MACHINE (RPC PIPELINE)
   ===================================================== */
 
   verified boolean NOT NULL DEFAULT false,
@@ -48,8 +49,6 @@ CREATE TABLE rpc_verification_logs (
       'MANUAL_REVIEW'
     )),
 
-  verify_reason text,
-
   verify_status text NOT NULL DEFAULT 'success'
     CHECK (verify_status IN (
       'success',
@@ -60,14 +59,18 @@ CREATE TABLE rpc_verification_logs (
     )),
 
   /* =====================================================
-     MONEY / WALLET SNAPSHOT
+     🔥 NEW FIELDS (YOUR REQUEST)
   ===================================================== */
 
-  amount numeric(20,7)
-    CHECK (amount >= 0),
+  stage text,
+  reason text,
 
-  expected_amount numeric(20,7)
-    CHECK (expected_amount >= 0),
+  /* =====================================================
+     FINANCIAL VALIDATION SNAPSHOT
+  ===================================================== */
+
+  amount numeric(20,7) CHECK (amount >= 0),
+  expected_amount numeric(20,7) CHECK (expected_amount >= 0),
 
   sender text,
   receiver text,
@@ -78,7 +81,7 @@ CREATE TABLE rpc_verification_logs (
   sender_match boolean,
 
   /* =====================================================
-     DUPLICATE / FRAUD FLAGS
+     FRAUD / RISK FLAGS
   ===================================================== */
 
   duplicate_flag boolean NOT NULL DEFAULT false,
@@ -89,37 +92,21 @@ CREATE TABLE rpc_verification_logs (
   fraud_reason text,
 
   /* =====================================================
-     IMMUTABLE HASH
+     IMMUTABLE VERIFICATION HASH
   ===================================================== */
 
   verification_hash text,
 
   /* =====================================================
-     RAW PAYLOAD
+     RAW CHAIN PAYLOAD (FORENSIC DEBUG)
   ===================================================== */
 
   payload jsonb,
 
   /* =====================================================
-     TIME TRACE
+     TIMESTAMP TRACE
   ===================================================== */
 
   verified_at timestamptz NOT NULL DEFAULT now(),
   created_at timestamptz NOT NULL DEFAULT now()
 );
-
-
-CREATE INDEX idx_rpc_verification_payment_intent
-ON rpc_verification_logs(payment_intent_id);
-
-CREATE INDEX idx_rpc_verification_pi_payment
-ON rpc_verification_logs(pi_payment_id);
-
-CREATE INDEX idx_rpc_verification_verified
-ON rpc_verification_logs(verified);
-
-CREATE INDEX idx_rpc_verification_status
-ON rpc_verification_logs(verify_status);
-
-CREATE INDEX idx_rpc_verification_ledger
-ON rpc_verification_logs(ledger);
