@@ -1,0 +1,14 @@
+CREATE INDEX idx_payment_audit_payment_intent
+ON payment_audit_logs(payment_intent_id);
+
+CREATE INDEX idx_payment_audit_pi_payment
+ON payment_audit_logs(pi_payment_id);
+
+CREATE INDEX idx_payment_audit_txid
+ON payment_audit_logs(txid);
+
+CREATE INDEX idx_payment_audit_stage
+ON payment_audit_logs(stage);
+
+CREATE INDEX idx_payment_audit_event_code
+ON payment_audit_logs(event_code);
