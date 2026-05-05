@@ -1,0 +1,91 @@
+DROP TABLE IF EXISTS payment_authorize_logs CASCADE;
+
+CREATE TABLE payment_authorize_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* =====================================================
+     ORDERING / TRACEABILITY
+  ===================================================== */
+
+  auth_index bigint GENERATED ALWAYS AS IDENTITY UNIQUE,
+
+  /* =====================================================
+     CORE LINK (UUID ONLY)
+  ===================================================== */
+
+  payment_intent_id uuid NOT NULL
+    REFERENCES payment_intents(id)
+    ON DELETE CASCADE,
+
+  /* =====================================================
+     PI NETWORK AUTH SNAPSHOT (NON-RELATIONAL)
+     NOTE: pi_uid is AUTH LAYER ONLY (NO FK, NO JOIN)
+  ===================================================== */
+
+  pi_payment_id text NOT NULL,
+  pi_uid text NOT NULL,
+
+  nonce text NOT NULL,
+  verify_token text NOT NULL,
+
+  merchant_wallet text NOT NULL,
+
+  /* =====================================================
+     AMOUNT VERIFICATION (CRITICAL SECURITY LAYER)
+  ===================================================== */
+
+  expected_amount numeric(20,7) NOT NULL CHECK (expected_amount >= 0),
+  verified_amount numeric(20,7) NOT NULL CHECK (verified_amount >= 0),
+
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* =====================================================
+     AUTHORIZATION STATE MACHINE
+  ===================================================== */
+
+  authorize_status text NOT NULL DEFAULT 'RECEIVED'
+    CHECK (authorize_status IN (
+      'RECEIVED',
+      'VERIFIED',
+      'DUPLICATE',
+      'REJECTED',
+      'REPLAY_BLOCKED'
+    )),
+
+  /* =====================================================
+     IDEMPOTENCY PROTECTION (ANTI-REPLAY CORE)
+  ===================================================== */
+
+  idempotency_fingerprint text NULL,
+
+  /* =====================================================
+     REQUEST CONTEXT (DEBUG ONLY - NO AUTH RELATION)
+  ===================================================== */
+
+  source text NULL,
+  request_id text NULL,
+  client_ip text NULL,
+  user_agent text NULL,
+
+  note text NULL,
+
+  /* =====================================================
+     RAW PAYLOAD (PI CALLBACK / RPC RESPONSE)
+  ===================================================== */
+
+  payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+
+  /* =====================================================
+     EVENT INTEGRITY (IMMUTABLE LOG CHAIN)
+  ===================================================== */
+
+  prev_hash text NULL,
+  event_hash text NOT NULL,
+
+  /* =====================================================
+     TIMESTAMP
+  ===================================================== */
+
+  created_at timestamptz NOT NULL DEFAULT now()
+);
