@@ -1,28 +1,82 @@
 CREATE TABLE escrow_entries (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  payment_intent_id uuid NOT NULL UNIQUE,
-  order_id uuid NOT NULL UNIQUE,
+  /* =====================================================
+     CORE LINKS (STRICT 1:1 GUARANTEE)
+  ===================================================== */
 
-  buyer_id uuid NOT NULL,
-  seller_id uuid NOT NULL,
+  payment_intent_id uuid NOT NULL UNIQUE
+    REFERENCES payment_intents(id)
+    ON DELETE CASCADE,
+
+  order_id uuid NOT NULL UNIQUE
+    REFERENCES orders(id)
+    ON DELETE CASCADE,
+
+  /* =====================================================
+     OWNERSHIP (UUID ONLY - V7 RULE)
+  ===================================================== */
+
+  buyer_id uuid NOT NULL
+    REFERENCES users(id)
+    ON DELETE RESTRICT,
+
+  seller_id uuid NOT NULL
+    REFERENCES users(id)
+    ON DELETE RESTRICT,
+
+  /* =====================================================
+     FINANCIAL STATE
+  ===================================================== */
 
   amount numeric(18,8) NOT NULL,
+
   released_amount numeric(18,8) NOT NULL DEFAULT 0,
   refunded_amount numeric(18,8) NOT NULL DEFAULT 0,
 
   currency text NOT NULL DEFAULT 'PI',
 
-  status text NOT NULL DEFAULT 'PENDING',
-  -- PENDING | PAID | SETTLED | REFUNDED | PARTIAL_REFUND | FAILED
+  /* =====================================================
+     ESCROW STATE MACHINE (FUNDS LIFECYCLE)
+  ===================================================== */
 
-  release_status text NOT NULL DEFAULT 'HOLD',
-  -- HOLD | PARTIAL_RELEASED | RELEASED
+  status text NOT NULL DEFAULT 'PENDING'
+    CHECK (status IN (
+      'PENDING',
+      'PAID',
+      'SETTLED',
+      'REFUNDED',
+      'PARTIAL_REFUND',
+      'FAILED'
+    )),
+
+  /* =====================================================
+     RELEASE STATE MACHINE (FUND RELEASE CONTROL)
+  ===================================================== */
+
+  release_status text NOT NULL DEFAULT 'HOLD'
+    CHECK (release_status IN (
+      'HOLD',
+      'PARTIAL_RELEASED',
+      'RELEASED'
+    )),
+
+  /* =====================================================
+     PAYMENT TRACEABILITY (NON-RELATIONAL)
+  ===================================================== */
 
   txid text,
   pi_payment_id text,
 
+  /* =====================================================
+     VERSION CONTROL (ESCROW EVOLUTION SAFETY)
+  ===================================================== */
+
   escrow_version int NOT NULL DEFAULT 1,
+
+  /* =====================================================
+     TIMELINE TRACKING
+  ===================================================== */
 
   held_at timestamptz,
   released_at timestamptz,
