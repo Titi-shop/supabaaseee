@@ -1,0 +1,11 @@
+CREATE INDEX idx_settlement_events_escrow
+ON settlement_events(escrow_id);
+
+CREATE INDEX idx_settlement_events_type
+ON settlement_events(event_type);
+
+CREATE INDEX idx_settlement_events_source
+ON settlement_events(source);
+
+CREATE INDEX idx_settlement_events_created
+ON settlement_events(created_at);
