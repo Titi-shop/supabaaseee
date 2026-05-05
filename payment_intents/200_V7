@@ -2,7 +2,7 @@ CREATE TABLE payment_intents (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
   /* =====================================================
-     PUBLIC / INTERNAL KEYS
+     IDEMPOTENCY / SAFETY KEYS
   ===================================================== */
 
   nonce text NOT NULL UNIQUE,
@@ -10,7 +10,7 @@ CREATE TABLE payment_intents (
   verify_token text NOT NULL UNIQUE,
 
   /* =====================================================
-     IDENTITY SNAPSHOT
+     IDENTITY (UUID ONLY - V7 RULE)
   ===================================================== */
 
   buyer_id uuid NOT NULL
@@ -33,29 +33,20 @@ CREATE TABLE payment_intents (
     CHECK (quantity > 0 AND quantity <= 100),
 
   /* =====================================================
-     PRICE SNAPSHOT
+     PRICE SNAPSHOT (IMMUTABLE AT TIME OF INTENT)
   ===================================================== */
 
-  unit_price numeric(20,7) NOT NULL
-    CHECK (unit_price >= 0),
-
-  subtotal numeric(20,7) NOT NULL
-    CHECK (subtotal >= 0),
-
-  discount numeric(20,7) NOT NULL DEFAULT 0
-    CHECK (discount >= 0),
-
-  shipping_fee numeric(20,7) NOT NULL
-    CHECK (shipping_fee >= 0),
-
-  total_amount numeric(20,7) NOT NULL
-    CHECK (total_amount >= 0),
+  unit_price numeric(20,7) NOT NULL CHECK (unit_price >= 0),
+  subtotal numeric(20,7) NOT NULL CHECK (subtotal >= 0),
+  discount numeric(20,7) NOT NULL DEFAULT 0 CHECK (discount >= 0),
+  shipping_fee numeric(20,7) NOT NULL CHECK (shipping_fee >= 0),
+  total_amount numeric(20,7) NOT NULL CHECK (total_amount >= 0),
 
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
 
   /* =====================================================
-     SHIPPING SNAPSHOT
+     SHIPPING SNAPSHOT (IMMUTABLE CONTEXT)
   ===================================================== */
 
   shipping_snapshot jsonb NOT NULL,
@@ -63,7 +54,8 @@ CREATE TABLE payment_intents (
   zone text NOT NULL,
 
   /* =====================================================
-     PI PAYMENT SNAPSHOT
+     PI NETWORK PAYMENT SNAPSHOT (AUTH LAYER ONLY)
+     NOTE: pi_user_uid is NOT used for DB relations
   ===================================================== */
 
   pi_payment_id text UNIQUE,
@@ -79,7 +71,7 @@ CREATE TABLE payment_intents (
   merchant_wallet text NOT NULL,
 
   /* =====================================================
-     PAYMENT STATUS (USER JOURNEY)
+     USER-FACING STATUS (UI STATE MACHINE)
   ===================================================== */
 
   status text NOT NULL DEFAULT 'created'
@@ -94,7 +86,7 @@ CREATE TABLE payment_intents (
     )),
 
   /* =====================================================
-     INTERNAL SETTLEMENT STATUS (BACKEND JOURNEY)
+     BACKEND SETTLEMENT STATE (SYSTEM OF RECORD)
   ===================================================== */
 
   settlement_state text NOT NULL DEFAULT 'UNSETTLED'
@@ -110,7 +102,7 @@ CREATE TABLE payment_intents (
     )),
 
   /* =====================================================
-     RECONCILE CONTROL
+     RECONCILIATION CONTROL (IDEMPOTENT PROCESSING)
   ===================================================== */
 
   reconcile_attempts integer NOT NULL DEFAULT 0
@@ -123,7 +115,7 @@ CREATE TABLE payment_intents (
   settlement_lock_source text,
 
   /* =====================================================
-     FAILURE / REVIEW
+     FAILURE TRACKING (NO RAW ERROR LEAKAGE)
   ===================================================== */
 
   failed_reason text,
