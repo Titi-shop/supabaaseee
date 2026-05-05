@@ -1,0 +1,20 @@
+CREATE INDEX idx_rpc_verification_payment_intent
+ON rpc_verification_logs(payment_intent_id);
+
+CREATE INDEX idx_rpc_verification_pi_payment
+ON rpc_verification_logs(pi_payment_id);
+
+CREATE INDEX idx_rpc_verification_verified
+ON rpc_verification_logs(verified);
+
+CREATE INDEX idx_rpc_verification_status
+ON rpc_verification_logs(verify_status);
+
+CREATE INDEX idx_rpc_verification_ledger
+ON rpc_verification_logs(ledger);
+
+CREATE INDEX idx_rpc_verification_stage
+ON rpc_verification_logs(verify_stage);
+
+CREATE INDEX idx_rpc_verification_txid
+ON rpc_verification_logs(txid);
