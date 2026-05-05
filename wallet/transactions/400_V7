@@ -1,0 +1,36 @@
+CREATE TABLE wallet_transactions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* =====================================================
+     OWNER (UUID ONLY)
+  ===================================================== */
+
+  user_id uuid NOT NULL
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+  /* =====================================================
+     TRANSACTION TYPE
+  ===================================================== */
+
+  type text NOT NULL
+    CHECK (type IN ('credit', 'debit')),
+
+  amount numeric NOT NULL
+    CHECK (amount > 0),
+
+  /* =====================================================
+     REFERENCE LINK
+  ===================================================== */
+
+  reference_type text
+    CHECK (reference_type IN ('order', 'refund', 'withdraw')),
+
+  reference_id uuid,
+
+  /* =====================================================
+     TIMESTAMP
+  ===================================================== */
+
+  created_at timestamptz DEFAULT now()
+);
