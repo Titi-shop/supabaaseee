@@ -1,20 +1,17 @@
 CREATE INDEX idx_payment_receipts_intent
 ON payment_receipts(payment_intent_id);
 
+CREATE INDEX idx_payment_receipts_user
+ON payment_receipts(user_id);
+
 CREATE INDEX idx_payment_receipts_order
 ON payment_receipts(order_id);
 
-CREATE INDEX idx_payment_receipts_escrow
-ON payment_receipts(escrow_id);
+CREATE INDEX idx_payment_receipts_pi_payment
+ON payment_receipts(pi_payment_id);
 
 CREATE INDEX idx_payment_receipts_txid
 ON payment_receipts(txid);
 
 CREATE INDEX idx_payment_receipts_status
 ON payment_receipts(verification_status);
-
-CREATE INDEX idx_payment_receipts_verified_at
-ON payment_receipts(verified_at DESC);
-
-CREATE INDEX idx_payment_receipts_created_at
-ON payment_receipts(created_at DESC);
