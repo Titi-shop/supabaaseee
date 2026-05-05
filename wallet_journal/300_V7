@@ -1,0 +1,68 @@
+CREATE TABLE wallet_journal (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* =====================================================
+     ACCOUNT OWNER (UUID ONLY - V7 RULE)
+  ===================================================== */
+
+  owner_id uuid NOT NULL,
+
+  owner_type text NOT NULL
+    CHECK (owner_type IN (
+      'BUYER',
+      'SELLER',
+      'SYSTEM'
+    )),
+
+  /* =====================================================
+     REFERENCE LINK (FLEXIBLE AUDIT TRACE)
+  ===================================================== */
+
+  ref_id uuid,
+  ref_table text,
+
+  /* =====================================================
+     LEDGER ENTRY TYPE (BUSINESS CONTEXT)
+  ===================================================== */
+
+  entry_type text NOT NULL
+    CHECK (entry_type IN (
+      'ESCROW_HOLD',
+      'SELLER_CREDIT',
+      'SELLER_WITHDRAW',
+      'BUYER_REFUND',
+      'ADMIN_REVERSE'
+    )),
+
+  /* =====================================================
+     ACCOUNTING DIRECTION
+  ===================================================== */
+
+  direction text NOT NULL
+    CHECK (direction IN (
+      'CREDIT',
+      'DEBIT'
+    )),
+
+  /* =====================================================
+     FINANCIAL DATA
+  ===================================================== */
+
+  amount numeric(18,8) NOT NULL
+    CHECK (amount > 0),
+
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* =====================================================
+     HUMAN CONTEXT / DEBUG
+  ===================================================== */
+
+  note text,
+
+  /* =====================================================
+     TIMESTAMP
+  ===================================================== */
+
+  created_at timestamptz NOT NULL DEFAULT now()
+);
