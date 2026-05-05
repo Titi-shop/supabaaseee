@@ -1,30 +1,20 @@
-CREATE INDEX idx_escrow_buyer_id ON escrow_entries(buyer_id);
-CREATE INDEX idx_escrow_seller_id ON escrow_entries(seller_id);
-CREATE INDEX idx_escrow_txid ON escrow_entries(txid);
-CREATE INDEX idx_escrow_pi_payment_id ON escrow_entries(pi_payment_id);
+CREATE INDEX idx_escrow_payment_intent
+ON escrow_entries(payment_intent_id);
 
-CREATE INDEX idx_refund_escrow_id ON buyer_refund_ledger(escrow_id);
+CREATE INDEX idx_escrow_order
+ON escrow_entries(order_id);
 
-CREATE INDEX idx_seller_credit_seller_id ON seller_credits(seller_id);
-CREATE INDEX idx_seller_credit_status ON seller_credits(status);
+CREATE INDEX idx_escrow_buyer
+ON escrow_entries(buyer_id);
 
-CREATE INDEX idx_withdraw_seller_id ON seller_withdrawals(seller_id);
-CREATE INDEX idx_withdraw_status ON seller_withdrawals(status);
+CREATE INDEX idx_escrow_seller
+ON escrow_entries(seller_id);
 
-CREATE INDEX idx_settlement_events_escrow_id ON settlement_events(escrow_id);
-CREATE INDEX idx_wallet_journal_owner_id ON wallet_journal(owner_id);
+CREATE INDEX idx_escrow_status
+ON escrow_entries(status);
 
+CREATE INDEX idx_escrow_release_status
+ON escrow_entries(release_status);
 
-
-
-ALTER TABLE buyer_refund_ledger
-ADD CONSTRAINT chk_refund_positive CHECK (amount > 0);
-
-ALTER TABLE seller_credits
-ADD CONSTRAINT chk_credit_positive CHECK (amount > 0);
-
-ALTER TABLE seller_withdrawals
-ADD CONSTRAINT chk_withdraw_positive CHECK (amount > 0);
-
-ALTER TABLE wallet_journal
-ADD CONSTRAINT chk_journal_positive CHECK (amount > 0);
+CREATE INDEX idx_escrow_txid
+ON escrow_entries(txid);
