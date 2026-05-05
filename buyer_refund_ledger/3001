@@ -1,0 +1,14 @@
+CREATE INDEX idx_buyer_refund_escrow
+ON buyer_refund_ledger(escrow_id);
+
+CREATE INDEX idx_buyer_refund_buyer
+ON buyer_refund_ledger(buyer_id);
+
+CREATE INDEX idx_buyer_refund_status
+ON buyer_refund_ledger(status);
+
+CREATE INDEX idx_buyer_refund_txid
+ON buyer_refund_ledger(refund_txid);
+
+CREATE INDEX idx_buyer_refund_pi_payment
+ON buyer_refund_ledger(pi_payment_id);
