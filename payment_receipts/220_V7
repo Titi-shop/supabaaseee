@@ -2,7 +2,7 @@ CREATE TABLE payment_receipts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
   /* =====================================================
-     CORE LINK
+     CORE RELATION (UUID ONLY)
   ===================================================== */
 
   payment_intent_id uuid NOT NULL
@@ -22,7 +22,7 @@ CREATE TABLE payment_receipts (
     ON DELETE SET NULL,
 
   /* =====================================================
-     PI PAYMENT IDENTITY
+     PI NETWORK SNAPSHOT (NON-RELATIONAL)
   ===================================================== */
 
   pi_payment_id text NOT NULL UNIQUE,
@@ -30,7 +30,7 @@ CREATE TABLE payment_receipts (
   txid text,
 
   /* =====================================================
-     VERIFIED MONEY
+     FINANCIAL SNAPSHOT (IMMUTABLE RECEIPT CORE)
   ===================================================== */
 
   expected_amount numeric(20,8) NOT NULL,
@@ -40,14 +40,14 @@ CREATE TABLE payment_receipts (
     CHECK (currency = 'PI'),
 
   /* =====================================================
-     WALLET TRACE
+     WALLET TRACEABILITY
   ===================================================== */
 
   sender_wallet text,
   receiver_wallet text,
 
   /* =====================================================
-     VERIFY STATE
+     VERIFICATION STATE MACHINE
   ===================================================== */
 
   verification_status text NOT NULL DEFAULT 'pi_verified'
@@ -72,7 +72,7 @@ CREATE TABLE payment_receipts (
     ),
 
   /* =====================================================
-     RPC CHAIN AUDIT
+     BLOCKCHAIN / RPC CONFIRMATION LAYER
   ===================================================== */
 
   rpc_confirmed boolean NOT NULL DEFAULT false,
@@ -81,7 +81,7 @@ CREATE TABLE payment_receipts (
   tx_status text,
 
   /* =====================================================
-     RAW FORENSIC PAYLOADS
+     FORENSIC PAYLOAD (RAW DATA STORAGE)
   ===================================================== */
 
   pi_payload jsonb,
@@ -89,21 +89,21 @@ CREATE TABLE payment_receipts (
   merged_payload jsonb,
 
   /* =====================================================
-     SECURITY / HASH TRACE
+     SECURITY / IDEMPOTENCY CONTROL
   ===================================================== */
 
   forensic_hash text,
   idempotency_key text,
 
   /* =====================================================
-     REVIEW
+     FAILURE / REVIEW TRACKING
   ===================================================== */
 
   failure_reason text,
   manual_note text,
 
   /* =====================================================
-     TIME
+     TIMESTAMPS (AUDIT FINALIZATION)
   ===================================================== */
 
   verified_at timestamptz,
