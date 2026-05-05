@@ -1,0 +1,11 @@
+CREATE INDEX idx_wallet_journal_owner
+ON wallet_journal(owner_id);
+
+CREATE INDEX idx_wallet_journal_type
+ON wallet_journal(entry_type);
+
+CREATE INDEX idx_wallet_journal_direction
+ON wallet_journal(direction);
+
+CREATE INDEX idx_wallet_journal_ref
+ON wallet_journal(ref_id, ref_table);
