@@ -1,0 +1,17 @@
+CREATE INDEX idx_seller_credits_seller
+ON seller_credits(seller_id);
+
+CREATE INDEX idx_seller_credits_payment_intent
+ON seller_credits(payment_intent_id);
+
+CREATE INDEX idx_seller_credits_order
+ON seller_credits(order_id);
+
+CREATE INDEX idx_seller_credits_status
+ON seller_credits(status);
+
+CREATE INDEX idx_seller_credits_pi_payment
+ON seller_credits(pi_payment_id);
+
+CREATE INDEX idx_seller_credits_escrow
+ON seller_credits(escrow_id);
