@@ -2,7 +2,7 @@ CREATE TABLE seller_credits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
   /* =====================================================
-     OWNERSHIP
+     OWNERSHIP (UUID ONLY - V7 RULE)
   ===================================================== */
 
   seller_id uuid NOT NULL
@@ -22,11 +22,10 @@ CREATE TABLE seller_credits (
     ON DELETE SET NULL,
 
   /* =====================================================
-     MONEY SNAPSHOT
+     FINANCIAL STATE (LEDGER SNAPSHOT)
   ===================================================== */
 
-  amount numeric(20,7) NOT NULL
-    CHECK (amount >= 0),
+  amount numeric(20,7) NOT NULL CHECK (amount >= 0),
 
   withdrawn_amount numeric(20,7) NOT NULL DEFAULT 0
     CHECK (withdrawn_amount >= 0),
@@ -44,7 +43,7 @@ CREATE TABLE seller_credits (
     CHECK (currency = 'PI'),
 
   /* =====================================================
-     CREDIT STATUS MACHINE
+     LEDGER STATE MACHINE (SELLER FUNDS LIFECYCLE)
   ===================================================== */
 
   status text NOT NULL DEFAULT 'AVAILABLE'
@@ -59,7 +58,7 @@ CREATE TABLE seller_credits (
     )),
 
   /* =====================================================
-     SOURCE TRACE
+     SOURCE TRACEABILITY
   ===================================================== */
 
   pi_payment_id text,
@@ -74,7 +73,7 @@ CREATE TABLE seller_credits (
     )),
 
   /* =====================================================
-     VERSION / FORENSIC CONTROL
+     VERSION / INTEGRITY CONTROL
   ===================================================== */
 
   ledger_version integer NOT NULL DEFAULT 1
@@ -82,9 +81,17 @@ CREATE TABLE seller_credits (
 
   audit_hash text,
 
+  /* =====================================================
+     LOCKING (ANTI-RACE CONDITIONS)
+  ===================================================== */
+
   lock_id uuid,
   locked_at timestamptz,
   lock_source text,
+
+  /* =====================================================
+     OPERATION NOTES
+  ===================================================== */
 
   hold_reason text,
   release_note text,
@@ -100,32 +107,17 @@ CREATE TABLE seller_credits (
   last_withdraw_at timestamptz,
 
   /* =====================================================
-     REVERSAL / FREEZE TRACKING
+     REVERSAL / FREEZE TIMELINE
   ===================================================== */
 
   frozen_at timestamptz,
   reversed_at timestamptz,
 
   /* =====================================================
-     TIME
+     TIMESTAMP
   ===================================================== */
 
   released_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
-
-CREATE INDEX idx_seller_credits_seller
-ON seller_credits(seller_id);
-
-CREATE INDEX idx_seller_credits_payment_intent
-ON seller_credits(payment_intent_id);
-
-CREATE INDEX idx_seller_credits_order
-ON seller_credits(order_id);
-
-CREATE INDEX idx_seller_credits_status
-ON seller_credits(status);
-
-CREATE INDEX idx_seller_credits_pi_payment
-ON seller_credits(pi_payment_id);
