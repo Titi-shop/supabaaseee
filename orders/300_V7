@@ -1,0 +1,98 @@
+CREATE TABLE orders (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  /* ================= IDENTITY ================= */
+
+  order_number text NOT NULL UNIQUE DEFAULT gen_random_uuid()::text,
+
+  buyer_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+  seller_id uuid NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+
+  /* ================= PAYMENT ================= */
+
+  pi_payment_id text UNIQUE,
+  pi_txid text,
+  idempotency_key text UNIQUE,
+
+  payment_status text NOT NULL DEFAULT 'pending'
+    CHECK (payment_status IN (
+      'pending',              -- chưa thanh toán
+      'paid',                 -- đã thanh toán
+      'failed',
+      'refunded'
+    )),
+
+  paid_at timestamptz,
+  refunded_at timestamptz,
+
+  /* ================= FULFILLMENT STATE MACHINE ================= */
+
+  fulfillment_status text NOT NULL DEFAULT 'pending'
+    CHECK (fulfillment_status IN (
+      'pending',              -- chưa thanh toán
+      'pending_fulfillment',  -- đã thanh toán, chờ seller xử lý
+      'processing',          -- seller đang chuẩn bị hàng
+      'shipped',
+      'delivered',
+      'completed',
+      'cancelled',
+      'refunded'
+    )),
+
+  /* ================= STATUS TIMELINE ================= */
+
+  fulfillment_started_at timestamptz,
+  processing_at timestamptz,
+  shipped_at timestamptz,
+  delivered_at timestamptz,
+  completed_at timestamptz,
+
+  cancel_reason text,
+  cancelled_at timestamptz,
+
+  /* ================= PRICE ================= */
+
+  items_total numeric NOT NULL DEFAULT 0 CHECK (items_total >= 0),
+  subtotal numeric NOT NULL DEFAULT 0 CHECK (subtotal >= 0),
+  discount numeric NOT NULL DEFAULT 0 CHECK (discount >= 0),
+  shipping_fee numeric NOT NULL DEFAULT 0 CHECK (shipping_fee >= 0),
+  tax numeric NOT NULL DEFAULT 0 CHECK (tax >= 0),
+
+  total numeric NOT NULL DEFAULT 0 CHECK (total >= 0),
+
+  currency text NOT NULL DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* ================= SHIPPING ================= */
+
+  shipping_name text NOT NULL DEFAULT '',
+  shipping_phone text NOT NULL DEFAULT '',
+  shipping_address_line text NOT NULL DEFAULT '',
+  shipping_ward text,
+  shipping_district text,
+  shipping_region text,
+  shipping_country text NOT NULL DEFAULT '',
+  shipping_postal_code text,
+
+  shipping_provider text,
+  shipping_zone text,
+
+  /* ================= NOTE ================= */
+
+  buyer_note text NOT NULL DEFAULT '',
+  admin_note text NOT NULL DEFAULT '',
+
+  /* ================= ANALYTICS ================= */
+
+  total_items integer NOT NULL DEFAULT 0 CHECK (total_items >= 0),
+  total_quantity integer NOT NULL DEFAULT 0 CHECK (total_quantity >= 0),
+
+  /* ================= SOFT DELETE ================= */
+
+  deleted_at timestamptz,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
