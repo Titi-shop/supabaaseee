@@ -1,0 +1,11 @@
+CREATE INDEX idx_seller_withdrawals_seller
+ON seller_withdrawals(seller_id);
+
+CREATE INDEX idx_seller_withdrawals_credit
+ON seller_withdrawals(seller_credit_id);
+
+CREATE INDEX idx_seller_withdrawals_status
+ON seller_withdrawals(status);
+
+CREATE INDEX idx_seller_withdrawals_txid
+ON seller_withdrawals(txid);
