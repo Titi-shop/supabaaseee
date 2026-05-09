@@ -1,19 +1,17 @@
 CREATE TABLE wallet_withdrawals (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  /* =====================================================
-     OWNERSHIP (UUID ONLY - V7 RULE)
-  ===================================================== */
+  /* =========================================
+     OWNER
+  ========================================= */
 
-  seller_id uuid NOT NULL,
-
-  seller_credit_id uuid NOT NULL
-    REFERENCES seller_credits(id)
+  user_id uuid NOT NULL
+    REFERENCES users(id)
     ON DELETE CASCADE,
 
-  /* =====================================================
+  /* =========================================
      FINANCIAL DATA
-  ===================================================== */
+  ========================================= */
 
   amount numeric(18,8) NOT NULL
     CHECK (amount > 0),
@@ -21,21 +19,21 @@ CREATE TABLE wallet_withdrawals (
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
 
-  /* =====================================================
-     WITHDRAWAL DESTINATION
-  ===================================================== */
+  /* =========================================
+     DESTINATION
+  ========================================= */
 
   withdraw_wallet text NOT NULL,
 
-  /* =====================================================
-     CHAIN / PAYMENT TRACEABILITY
-  ===================================================== */
+  /* =========================================
+     BLOCKCHAIN TRACE
+  ========================================= */
 
   txid text,
 
-  /* =====================================================
-     WITHDRAW STATE MACHINE
-  ===================================================== */
+  /* =========================================
+     STATUS
+  ========================================= */
 
   status text NOT NULL DEFAULT 'PENDING'
     CHECK (status IN (
@@ -45,16 +43,16 @@ CREATE TABLE wallet_withdrawals (
       'CANCELLED'
     )),
 
-  /* =====================================================
+  /* =========================================
      TIMELINE
-  ===================================================== */
+  ========================================= */
 
   requested_at timestamptz NOT NULL DEFAULT now(),
   completed_at timestamptz,
 
-  /* =====================================================
-     FAILURE TRACKING (NO RAW ERROR LEAK)
-  ===================================================== */
+  /* =========================================
+     FAILURE INFO
+  ========================================= */
 
   fail_reason text
 );
