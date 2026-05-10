@@ -3,13 +3,23 @@ CREATE TABLE cart_items (
 
   /* ================= OWNER ================= */
 
-  user_id uuid NOT NULL,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
   /* ================= RELATION ================= */
 
-  product_id uuid NOT NULL,
+  product_id uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+
   variant_id uuid,
-  seller_id uuid NOT NULL,
+
+  /* generated key để xử lý NULL variant */
+  variant_key uuid GENERATED ALWAYS AS (
+    COALESCE(
+      variant_id,
+      '00000000-0000-0000-0000-000000000000'::uuid
+    )
+  ) STORED,
+
+  seller_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
   /* ================= PRODUCT SNAPSHOT ================= */
 
@@ -17,14 +27,20 @@ CREATE TABLE cart_items (
   product_slug text NOT NULL DEFAULT '',
 
   thumbnail text NOT NULL DEFAULT '',
+
   images text[] NOT NULL DEFAULT '{}',
 
   /* ================= PRICE ================= */
 
-  unit_price numeric NOT NULL DEFAULT 0,
-  final_price numeric NOT NULL DEFAULT 0, -- 🔥 QUAN TRỌNG
+  unit_price numeric(20,7) NOT NULL DEFAULT 0,
+
+  final_price numeric(20,7) NOT NULL DEFAULT 0,
+
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
+
+  /* snapshot giá lúc add cart */
+  price_snapshot numeric(20,7),
 
   /* ================= QUANTITY ================= */
 
@@ -34,25 +50,39 @@ CREATE TABLE cart_items (
   /* ================= FLAGS ================= */
 
   is_selected boolean NOT NULL DEFAULT true,
+
   is_available boolean NOT NULL DEFAULT true,
 
-  /* ================= VALIDATION ================= */
-
-  stock_snapshot integer,
   is_unlimited boolean NOT NULL DEFAULT false,
 
-  price_snapshot numeric, -- 🔥 check price change
   is_price_changed boolean NOT NULL DEFAULT false,
+
   is_out_of_stock boolean NOT NULL DEFAULT false,
+
+  /* ================= STOCK ================= */
+
+  stock_snapshot integer,
 
   /* ================= METADATA ================= */
 
-  added_from text, -- web / mobile / campaign
+  added_from text,
+
   note text,
 
   /* ================= TIME ================= */
 
   created_at timestamptz NOT NULL DEFAULT now(),
+
   updated_at timestamptz NOT NULL DEFAULT now(),
-  deleted_at timestamptz
+
+  deleted_at timestamptz,
+
+  /* ================= UNIQUE ================= */
+
+  CONSTRAINT cart_items_unique_line
+  UNIQUE (
+    user_id,
+    product_id,
+    variant_key
+  )
 );
