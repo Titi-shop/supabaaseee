@@ -1,29 +1,25 @@
 CREATE TABLE IF NOT EXISTS public.shipping_rates (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- 🔥 mỗi sản phẩm 1 cấu hình ship riêng
   product_id uuid NOT NULL
     REFERENCES public.products(id)
     ON DELETE CASCADE,
 
-  -- 🔥 liên kết zone (domestic, asia, ...)
   zone_id uuid NOT NULL
     REFERENCES public.shipping_zones(id)
     ON DELETE CASCADE,
 
-  -- 💰 giá ship
   price numeric(12,2) NOT NULL
     CHECK (price >= 0),
 
-  -- 💰 chỉ dùng PI
   currency text NOT NULL DEFAULT 'PI'
     CHECK (currency = 'PI'),
+
+  domestic_country_code text,
 
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
 
-  -- ❗ mỗi product chỉ có 1 giá / zone
   CONSTRAINT shipping_rates_product_zone_unique
   UNIQUE (product_id, zone_id)
-ADD COLUMN domestic_country_code text null;
 );
