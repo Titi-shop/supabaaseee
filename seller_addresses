@@ -1,0 +1,25 @@
+CREATE TABLE seller_addresses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  seller_id UUID NOT NULL,
+
+  type TEXT NOT NULL,
+  -- "return" | "warehouse" | "pickup" | "support"
+
+  recipient_name TEXT,
+  phone TEXT,
+
+  country TEXT DEFAULT 'VN',
+  province TEXT,
+  district TEXT,
+  ward TEXT,
+  address_line TEXT NOT NULL,
+  postal_code TEXT,
+
+  is_default BOOLEAN DEFAULT false,
+
+  note TEXT,
+
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
