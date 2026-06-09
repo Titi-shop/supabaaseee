@@ -1,25 +1,49 @@
 CREATE TABLE seller_addresses (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  seller_id UUID NOT NULL,
+  /* ================= OWNER ================= */
+  seller_id uuid NOT NULL,
 
-  type TEXT NOT NULL,
-  -- "return" | "warehouse" | "pickup" | "support"
+  /* ================= TYPE ================= */
+  type text NOT NULL
+    CHECK (type IN ('return', 'warehouse', 'pickup', 'support')),
 
-  recipient_name TEXT,
-  phone TEXT,
+  /* ================= CONTACT ================= */
 
-  country TEXT DEFAULT 'VN',
-  province TEXT,
-  district TEXT,
-  ward TEXT,
-  address_line TEXT NOT NULL,
-  postal_code TEXT,
+  recipient_name text NOT NULL DEFAULT '',
+  phone text NOT NULL DEFAULT '',
 
-  is_default BOOLEAN DEFAULT false,
+  /* ================= LOCATION ================= */
 
-  note TEXT,
+  country text NOT NULL DEFAULT 'VN',
 
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  address_line text NOT NULL DEFAULT '',
+
+  ward text,
+  district text,
+  region text,           -- province/state/city (consistent with user_profiles)
+
+  postal_code text,
+
+  /* ================= SHIPPING META ================= */
+
+  latitude numeric,
+  longitude numeric,
+
+  place_id text,
+
+  /* ================= FLAGS ================= */
+
+  is_default boolean NOT NULL DEFAULT false,
+  is_verified boolean NOT NULL DEFAULT false,
+  is_active boolean NOT NULL DEFAULT true,
+  /* ================= NOTE ================= */
+
+  note text,
+
+  /* ================= TIME ================= */
+
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  deleted_at timestamptz
 );
