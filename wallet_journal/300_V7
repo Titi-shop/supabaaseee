@@ -1,68 +1,143 @@
+
 CREATE TABLE wallet_journal (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id uuid PRIMARY KEY
+    DEFAULT gen_random_uuid(),
 
   /* =====================================================
-     ACCOUNT OWNER (UUID ONLY - V7 RULE)
+     ACCOUNT OWNER
   ===================================================== */
 
   owner_id uuid NOT NULL,
 
   owner_type text NOT NULL
-    CHECK (owner_type IN (
-      'BUYER',
-      'SELLER',
-      'SYSTEM'
-    )),
+    CHECK (
+      owner_type IN (
+        'BUYER',
+        'SELLER',
+        'SYSTEM',
+        'ADMIN'
+      )
+    ),
 
   /* =====================================================
-     REFERENCE LINK (FLEXIBLE AUDIT TRACE)
+     TRACE REFERENCE
   ===================================================== */
 
   ref_id uuid,
+
   ref_table text,
 
   /* =====================================================
-     LEDGER ENTRY TYPE (BUSINESS CONTEXT)
+     BUSINESS EVENT TYPE
   ===================================================== */
 
   entry_type text NOT NULL
-    CHECK (entry_type IN (
-      'ESCROW_HOLD',
-      'SELLER_CREDIT',
-      'SELLER_WITHDRAW',
-      'BUYER_REFUND',
-      'ADMIN_REVERSE'
-    )),
+    CHECK (
+      entry_type IN (
+
+        /* ===============================================
+           BUYER
+        =============================================== */
+
+        'ESCROW_HOLD',
+        'BUYER_REFUND',
+        'BUYER_PARTIAL_REFUND',
+
+        /* ===============================================
+           SELLER
+        =============================================== */
+
+        'SELLER_CREDIT',
+        'SELLER_ESCROW_RELEASE',
+        'SELLER_WITHDRAW',
+        'SELLER_WITHDRAW_REVERT',
+
+        /* ===============================================
+           ESCROW
+        =============================================== */
+
+        'ESCROW_RELEASE',
+        'ESCROW_REVERT',
+
+        /* ===============================================
+           DISPUTE
+        =============================================== */
+
+        'DISPUTE_LOCK',
+        'DISPUTE_RELEASE',
+        'DISPUTE_REFUND',
+
+        /* ===============================================
+           ADMIN / SYSTEM
+        =============================================== */
+
+        'ADMIN_ADJUST',
+        'ADMIN_REVERSE',
+        'SYSTEM_COMPENSATION'
+      )
+    ),
 
   /* =====================================================
      ACCOUNTING DIRECTION
   ===================================================== */
 
   direction text NOT NULL
-    CHECK (direction IN (
-      'CREDIT',
-      'DEBIT'
-    )),
+    CHECK (
+      direction IN (
+        'CREDIT',
+        'DEBIT'
+      )
+    ),
 
   /* =====================================================
-     FINANCIAL DATA
+     FINANCIAL
   ===================================================== */
 
   amount numeric(18,8) NOT NULL
     CHECK (amount > 0),
 
-  currency text NOT NULL DEFAULT 'PI'
+  currency text NOT NULL
+    DEFAULT 'PI'
     CHECK (currency = 'PI'),
 
   /* =====================================================
-     HUMAN CONTEXT / DEBUG
+     OPTIONAL CONTEXT
   ===================================================== */
 
   note text,
+
+  metadata jsonb
+    DEFAULT '{}'::jsonb,
+
+  /* =====================================================
+     IDEMPOTENCY / AUDIT
+  ===================================================== */
+
+  event_hash text,
+
+  created_by uuid,
 
   /* =====================================================
      TIMESTAMP
   ===================================================== */
 
-  created_at timestamptz NOT NULL DEFAULT now()
+  created_at timestamptz NOT NULL
+    DEFAULT now()
 );
+
+/* =====================================================
+   INDEXES
+===================================================== */
+
+CREATE INDEX idx_wallet_journal_owner
+ON wallet_journal(owner_id);
+
+CREATE INDEX idx_wallet_journal_entry_type
+ON wallet_journal(entry_type);
+
+CREATE INDEX idx_wallet_journal_created_at
+ON wallet_journal(created_at DESC);
+
+CREATE INDEX idx_wallet_journal_ref
+ON wallet_journal(ref_id, ref_table);
+
