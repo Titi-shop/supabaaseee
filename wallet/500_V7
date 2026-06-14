@@ -1,24 +1,54 @@
 CREATE TABLE wallets (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  id uuid PRIMARY KEY
+    DEFAULT gen_random_uuid(),
 
   /* =====================================================
-     OWNER (UUID ONLY - V7 RULE)
+     OWNER
   ===================================================== */
 
-  user_id uuid UNIQUE NOT NULL
+  user_id uuid NOT NULL UNIQUE
     REFERENCES users(id)
     ON DELETE CASCADE,
 
   /* =====================================================
-     BALANCE CACHE (NOT SOURCE OF TRUTH)
+     BALANCE CACHE
+     (NOT SOURCE OF TRUTH)
   ===================================================== */
 
-  balance numeric NOT NULL DEFAULT 0,
+  balance numeric(18,8) NOT NULL DEFAULT 0
+    CHECK (balance >= 0),
+
+  available_balance numeric(18,8) NOT NULL DEFAULT 0
+    CHECK (available_balance >= 0),
+
+  pending_balance numeric(18,8) NOT NULL DEFAULT 0
+    CHECK (pending_balance >= 0),
+
+  frozen_balance numeric(18,8) NOT NULL DEFAULT 0
+    CHECK (frozen_balance >= 0),
+
+  /* =====================================================
+     VERSIONING
+  ===================================================== */
+
+  wallet_version integer NOT NULL DEFAULT 1
+    CHECK (wallet_version > 0),
+
+  /* =====================================================
+     AUDIT
+  ===================================================== */
+
+  last_credit_at timestamptz,
+  last_debit_at timestamptz,
 
   /* =====================================================
      TIMESTAMPS
   ===================================================== */
 
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
+  created_at timestamptz NOT NULL
+    DEFAULT now(),
+
+  updated_at timestamptz NOT NULL
+    DEFAULT now()
 );
