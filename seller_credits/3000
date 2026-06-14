@@ -1,0 +1,185 @@
+
+CREATE TABLE seller_credits (
+
+  /* =====================================================
+     PRIMARY
+  ===================================================== */
+
+  id uuid PRIMARY KEY
+    DEFAULT gen_random_uuid(),
+
+  /* =====================================================
+     RELATIONS
+  ===================================================== */
+
+  seller_id uuid NOT NULL
+    REFERENCES users(id)
+    ON DELETE RESTRICT,
+
+  escrow_id uuid NOT NULL UNIQUE
+    REFERENCES escrow_entries(id)
+    ON DELETE CASCADE,
+
+  payment_intent_id uuid
+    REFERENCES payment_intents(id)
+    ON DELETE SET NULL,
+
+  order_id uuid
+    REFERENCES orders(id)
+    ON DELETE SET NULL,
+
+  /* =====================================================
+     FINANCIAL
+  ===================================================== */
+
+  amount numeric(18,8) NOT NULL
+    CHECK (amount > 0),
+
+  withdrawn_amount numeric(18,8) NOT NULL
+    DEFAULT 0
+    CHECK (withdrawn_amount >= 0),
+
+  reversed_amount numeric(18,8) NOT NULL
+    DEFAULT 0
+    CHECK (reversed_amount >= 0),
+
+  frozen_amount numeric(18,8) NOT NULL
+    DEFAULT 0
+    CHECK (frozen_amount >= 0),
+
+  available_amount numeric(18,8) NOT NULL
+    DEFAULT 0
+    CHECK (available_amount >= 0),
+
+  currency text NOT NULL
+    DEFAULT 'PI'
+    CHECK (currency = 'PI'),
+
+  /* =====================================================
+     STATUS
+  ===================================================== */
+
+  status text NOT NULL
+    CHECK (
+      status IN (
+
+        'FROZEN',
+        'AVAILABLE',
+        'PARTIAL_WITHDRAWN',
+        'WITHDRAWN',
+        'LOCKED',
+        'REVERSED',
+        'MANUAL_REVIEW'
+
+      )
+    ),
+
+  /* =====================================================
+     PAYMENT TRACE
+  ===================================================== */
+
+  pi_payment_id text,
+
+  chain_txid text,
+
+  /* =====================================================
+     CREDIT SOURCE
+  ===================================================== */
+
+  credit_source text NOT NULL
+    CHECK (
+      credit_source IN (
+        'ORDER_PAYMENT',
+        'MANUAL_ADJUST',
+        'REFUND_REVERSAL',
+        'SYSTEM_COMPENSATION'
+      )
+    ),
+
+  /* =====================================================
+     VERSIONING
+  ===================================================== */
+
+  ledger_version integer NOT NULL
+    DEFAULT 1
+    CHECK (ledger_version > 0),
+
+  audit_hash text,
+
+  /* =====================================================
+     LOCKING / FREEZE
+  ===================================================== */
+
+  lock_id uuid,
+
+  locked_at timestamptz,
+
+  lock_source text,
+
+  hold_reason text,
+
+  release_note text,
+
+  manual_review_reason text,
+
+  /* =====================================================
+     WITHDRAW
+  ===================================================== */
+
+  withdraw_count integer NOT NULL
+    DEFAULT 0
+    CHECK (withdraw_count >= 0),
+
+  last_withdraw_at timestamptz,
+
+  /* =====================================================
+     TIMESTAMPS
+  ===================================================== */
+
+  frozen_at timestamptz,
+
+  released_at timestamptz,
+
+  reversed_at timestamptz,
+
+  created_at timestamptz NOT NULL
+    DEFAULT now(),
+
+  updated_at timestamptz NOT NULL
+    DEFAULT now(),
+
+  /* =====================================================
+     ACCOUNTING SAFETY
+  ===================================================== */
+
+  CHECK (
+    frozen_amount
+    + available_amount
+    + withdrawn_amount
+    + reversed_amount
+    <= amount
+  )
+);
+
+/* =====================================================
+   INDEXES
+===================================================== */
+
+CREATE INDEX idx_seller_credits_seller
+ON seller_credits(seller_id);
+
+CREATE INDEX idx_seller_credits_status
+ON seller_credits(status);
+
+CREATE INDEX idx_seller_credits_escrow
+ON seller_credits(escrow_id);
+
+CREATE INDEX idx_seller_credits_payment
+ON seller_credits(payment_intent_id);
+
+CREATE INDEX idx_seller_credits_order
+ON seller_credits(order_id);
+
+CREATE INDEX idx_seller_credits_created
+ON seller_credits(created_at DESC);
+
