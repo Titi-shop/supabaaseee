@@ -9,3 +9,14 @@ ON seller_withdrawals(status);
 
 CREATE INDEX idx_seller_withdrawals_txid
 ON seller_withdrawals(txid);
+
+
+
+CREATE INDEX idx_wallet_withdrawals_user
+ON wallet_withdrawals(user_id);
+
+CREATE INDEX idx_wallet_withdrawals_status
+ON wallet_withdrawals(status);
+
+CREATE INDEX idx_wallet_withdrawals_requested
+ON wallet_withdrawals(requested_at DESC);
