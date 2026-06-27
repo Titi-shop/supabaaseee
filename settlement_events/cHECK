@@ -1,0 +1,7 @@
+CHECK (
+    (
+        escrow_id IS NOT NULL
+      + withdrawal_id IS NOT NULL
+      + payment_intent_id IS NOT NULL
+    ) = 1
+)
