@@ -1,39 +1,59 @@
 CREATE TABLE settlement_events (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  /* =====================================================
-     CORE LINK (ESCROW SOURCE OF TRUTH)
-  ===================================================== */
+    id uuid PRIMARY KEY
+        DEFAULT gen_random_uuid(),
 
-  escrow_id uuid NOT NULL
-    REFERENCES escrow_entries(id)
-    ON DELETE CASCADE,
+    escrow_id uuid NULL
+        REFERENCES escrow_entries(id)
+        ON DELETE CASCADE,
 
-  /* =====================================================
-     EVENT CLASSIFICATION (SETTLEMENT PIPELINE)
-  ===================================================== */
+    withdrawal_id uuid NULL
+        REFERENCES wallet_withdrawals(id)
+        ON DELETE CASCADE,
 
-  event_type text NOT NULL,
+    payment_intent_id uuid NULL
+        REFERENCES payment_intents(id)
+        ON DELETE CASCADE,
 
-  source text NOT NULL,
+    event_type text NOT NULL,
 
-  reason text,
+    source text NOT NULL,
 
-  /* =====================================================
-     EVENT PAYLOAD (FORENSIC + REPLAY SAFE)
-  ===================================================== */
+    reason text NULL,
 
-  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+    metadata jsonb NOT NULL
+        DEFAULT '{}'::jsonb,
 
-  /* =====================================================
-     INTEGRITY CONTROL (IMMUTABLE EVENT CHAIN)
-  ===================================================== */
+    event_hash text,
 
-  event_hash text,
+    created_at timestamptz NOT NULL
+        DEFAULT now(),
 
-  /* =====================================================
-     TIMESTAMP
-  ===================================================== */
+    CONSTRAINT settlement_events_ref_check
+    CHECK (
 
-  created_at timestamptz NOT NULL DEFAULT now()
+        (
+            CASE
+                WHEN escrow_id IS NOT NULL
+                THEN 1 ELSE 0
+            END
+
+          +
+
+            CASE
+                WHEN withdrawal_id IS NOT NULL
+                THEN 1 ELSE 0
+            END
+
+          +
+
+            CASE
+                WHEN payment_intent_id IS NOT NULL
+                THEN 1 ELSE 0
+            END
+
+        ) = 1
+
+    )
+
 );
