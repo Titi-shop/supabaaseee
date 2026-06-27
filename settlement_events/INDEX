@@ -1,0 +1,20 @@
+CREATE INDEX idx_settlement_events_escrow
+ON settlement_events(escrow_id);
+
+CREATE INDEX idx_settlement_events_withdrawal
+ON settlement_events(withdrawal_id);
+
+CREATE INDEX idx_settlement_events_payment_intent
+ON settlement_events(payment_intent_id);
+
+CREATE INDEX idx_settlement_events_type
+ON settlement_events(event_type);
+
+CREATE INDEX idx_settlement_events_source
+ON settlement_events(source);
+
+CREATE INDEX idx_settlement_events_created
+ON settlement_events(created_at);
+
+CREATE UNIQUE INDEX settlement_events_event_hash_idx
+ON settlement_events(event_hash);
