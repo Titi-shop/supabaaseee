@@ -1,0 +1,98 @@
+CREATE TABLE public.wallet_addresses (
+    -- Primary Key
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Owner
+    wallet_id UUID NOT NULL
+        REFERENCES public.wallets(id)
+        ON DELETE CASCADE,
+
+    user_id UUID NOT NULL
+        REFERENCES public.users(id)
+        ON DELETE CASCADE,
+
+    -- Blockchain
+    network VARCHAR(30) NOT NULL DEFAULT 'pi',
+
+    -- Wallet Address
+    address TEXT NOT NULL,
+
+    -- User Label
+    label VARCHAR(100),
+
+    -- Status
+    status VARCHAR(20) NOT NULL DEFAULT 'active'
+        CHECK (status IN (
+            'active',
+            'inactive',
+            'disabled',
+            'deleted'
+        )),
+
+    -- Default Wallet
+    is_default BOOLEAN NOT NULL DEFAULT TRUE,
+
+    -- Validation
+    validation_status VARCHAR(20) NOT NULL DEFAULT 'pending'
+        CHECK (validation_status IN (
+            'pending',
+            'valid',
+            'invalid'
+        )),
+
+    validation_error TEXT,
+
+    validated_at TIMESTAMPTZ,
+
+    -- Ownership Verification
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+
+    verified_at TIMESTAMPTZ,
+
+    -- Statistics
+    used_count INTEGER NOT NULL DEFAULT 0,
+
+    last_used_at TIMESTAMPTZ,
+
+    -- Audit
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    deleted_at TIMESTAMPTZ,
+
+    created_by UUID,
+
+    updated_by UUID
+);
+
+---------------------------------------------------------
+-- Indexes
+---------------------------------------------------------
+
+CREATE INDEX idx_wallet_addresses_user
+ON wallet_addresses(user_id);
+
+CREATE INDEX idx_wallet_addresses_wallet
+ON wallet_addresses(wallet_id);
+
+CREATE INDEX idx_wallet_addresses_status
+ON wallet_addresses(status);
+
+CREATE INDEX idx_wallet_addresses_network
+ON wallet_addresses(network);
+
+CREATE INDEX idx_wallet_addresses_validation
+ON wallet_addresses(validation_status);
+
+CREATE INDEX idx_wallet_addresses_address
+ON wallet_addresses(address);
+
+---------------------------------------------------------
+-- Only one default wallet per user
+---------------------------------------------------------
+
+CREATE UNIQUE INDEX uq_wallet_default
+ON wallet_addresses(user_id)
+WHERE is_default = TRUE
+  AND status = 'active';
