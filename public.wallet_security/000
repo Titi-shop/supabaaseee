@@ -1,0 +1,83 @@
+CREATE TABLE public.wallet_security (
+
+    id uuid PRIMARY KEY
+        DEFAULT gen_random_uuid(),
+
+    user_id uuid NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    /* ==========================
+       PIN
+    ========================== */
+
+    pin_hash text,
+
+    pin_enabled boolean
+        NOT NULL DEFAULT false,
+
+    pin_created_at timestamptz,
+
+    pin_changed_at timestamptz,
+
+    /* ==========================
+       PIN LOCK
+    ========================== */
+
+    failed_attempts integer
+        NOT NULL DEFAULT 0,
+
+    locked_until timestamptz,
+
+    last_verified_at timestamptz,
+
+    /* ==========================
+       GOOGLE AUTHENTICATOR
+    ========================== */
+
+    totp_enabled boolean
+        NOT NULL DEFAULT false,
+
+    totp_secret text,
+
+    totp_created_at timestamptz,
+
+    /* ==========================
+       PASSKEY
+    ========================== */
+
+    passkey_enabled boolean
+        NOT NULL DEFAULT false,
+
+    /* ==========================
+       BIOMETRIC
+    ========================== */
+
+    biometric_enabled boolean
+        NOT NULL DEFAULT false,
+
+    /* ==========================
+       RECOVERY
+    ========================== */
+
+    recovery_code_hash text,
+
+    recovery_generated_at timestamptz,
+
+    /* ==========================
+       AUDIT
+    ========================== */
+
+    created_at timestamptz
+        NOT NULL DEFAULT now(),
+
+    updated_at timestamptz
+        NOT NULL DEFAULT now(),
+
+    created_by uuid,
+
+    updated_by uuid,
+
+    UNIQUE(user_id)
+
+);
